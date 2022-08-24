@@ -149,6 +149,10 @@ public class HexMapEditor : MonoBehaviour {
 			hexGrid.AddUnit(
 				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f)
 			);
+			var transform1 = cell.Unit.transform;
+			var position = transform1.position;
+			position = new Vector3(position.x, 7, position.z);
+			transform1.position = position;
 		}
 	}
 

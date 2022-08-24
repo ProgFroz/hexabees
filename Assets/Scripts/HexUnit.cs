@@ -105,7 +105,8 @@ public class HexUnit : MonoBehaviour {
 				currentColumn = nextColumn;
 			}
 
-			c = (b + currentTravelLocation.Position) * 0.5f;
+			Vector3 elevated = new Vector3(b.x, 7, b.z);
+			c = (elevated + currentTravelLocation.Position) * 0.5f;
 			Grid.IncreaseVisibility(pathToTravel[i], VisionRange);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
