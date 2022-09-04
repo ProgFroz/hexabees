@@ -1026,8 +1026,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71867f3df5b1f44389d34c7942834331, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hexGrid: {fileID: 0}
-  mapGenerator: {fileID: 0}
+  hexGrid: {fileID: 1571186511}
+  mapGenerator: {fileID: 2056945512}
 --- !u!114 &94716057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3600,7 +3600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc6fe14692f4c65478712b34c88c9141, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiManager: {fileID: 0}
+  uiManager: {fileID: 1401500174}
   baseButton: {fileID: 311949292}
   innerBaseButton: {fileID: 336247888}
   currentActions: 000000000100000002000000030000000400000005000000
@@ -5188,7 +5188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e363bf5181e448a78cb05f5d6a64930, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hexGrid: {fileID: 0}
+  hexGrid: {fileID: 1571186511}
   terrainMaterial: {fileID: 2100000, guid: 6a3f5c7892e4b478e9e745026e6fe9f7, type: 2}
 --- !u!114 &468413803
 MonoBehaviour:
@@ -5719,7 +5719,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 553546918}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0915db5db67a63c449c07a633f3c9eea, type: 3}
+  m_Script: {fileID: 11500000, guid: 3c88d635188376c49896658fa3407b49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   overworldImage: {fileID: 1672660132}
@@ -6357,6 +6357,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592154818}
   m_CullTransparentMesh: 1
+--- !u!1 &594077149
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 594077151}
+  - component: {fileID: 594077150}
+  m_Layer: 0
+  m_Name: TimeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &594077150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594077149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81010ecc834a4199a55ade113a52bec0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pausedTimeScale: 0
+  gameIsPaused: 0
+  uiManager: {fileID: 1401500174}
+  day: 0
+  hour: 0
+  year: 0
+  season: 0
+--- !u!4 &594077151
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594077149}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 721.5514, y: 100.66437, z: 310.55627}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &602858684
 GameObject:
   m_ObjectHideFlags: 0
@@ -13912,10 +13962,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1312083890}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f2c325282233294c85994f4199509fd, type: 3}
+  m_Script: {fileID: 11500000, guid: 879795082fa5035498032209550e98f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiManager: {fileID: 0}
+  uiManager: {fileID: 1401500174}
   buttonMenus:
   - {fileID: 311949291}
   - {fileID: 1549746207}
@@ -14743,6 +14793,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1641b6bf6c59b51448a80b21af2aa78d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeManager: {fileID: 594077150}
+  pauseButtonInactive: {r: 0.4811321, g: 0.19744574, b: 0.19744574, a: 0}
+  pauseButtonActive: {r: 0.6226415, g: 0.3964934, b: 0.3964934, a: 0}
+  timeButtonInactive: {r: 0.23584908, g: 0.05896227, b: 0.05896227, a: 0}
+  timeButtonActive: {r: 0.97245985, g: 0.8443396, b: 1, a: 0}
+  pauseButton: {fileID: 1791672175}
+  onceButton: {fileID: 1474105401}
+  twiceButton: {fileID: 1447054054}
+  dateTimeText: {fileID: 1155338446}
+  allActionButtons:
+  - {fileID: 1175200846}
+  - {fileID: 975354166}
+  - {fileID: 874864407}
+  - {fileID: 1072000448}
+  - {fileID: 223853500}
+  - {fileID: 1836371475}
+  - {fileID: 1900734579}
+  - {fileID: 849970035}
+  - {fileID: 230300641}
+  - {fileID: 1734380236}
+  - {fileID: 1562536892}
+  - {fileID: 480157230}
+  selectedActionButton: {fileID: 0}
+  currentAction: 0
+  changeMapButton: {fileID: 553546920}
+  overworldHexMapCamera: {fileID: 2102140320}
+  hiveHexMapCamera: {fileID: 0}
 --- !u!4 &1401500175
 Transform:
   m_ObjectHideFlags: 0
@@ -16225,7 +16302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc6fe14692f4c65478712b34c88c9141, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiManager: {fileID: 0}
+  uiManager: {fileID: 1401500174}
   baseButton: {fileID: 1549746209}
   innerBaseButton: {fileID: 815032144}
   currentActions: 060000000700000008000000090000000a0000000b000000
@@ -18570,7 +18647,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5069366424a544be0b028f5cef956c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grid: {fileID: 0}
+  grid: {fileID: 1571186511}
 --- !u!4 &1762928910
 Transform:
   m_ObjectHideFlags: 0
@@ -19667,7 +19744,7 @@ MonoBehaviour:
   nameInput: {fileID: 2038098343}
   listContent: {fileID: 679193274}
   itemPrefab: {fileID: 114778907200386024, guid: 3ba1efbe9386b435da480e11c9fcb2df, type: 3}
-  hexGrid: {fileID: 0}
+  hexGrid: {fileID: 1571186511}
 --- !u!114 &1857639291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22281,6 +22358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a7781699ea884365b44347e935bc319, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 0
   stickMinZoom: -250
   stickMaxZoom: -45
   swivelMinZoom: 90

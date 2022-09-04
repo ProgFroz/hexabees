@@ -20,7 +20,7 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        // uiManager.UpdateDateTimeUI(day, hour);
+        uiManager.UpdateDateTimeUI(day, hour);
 
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {

@@ -2,6 +2,7 @@
 
 public class HexMapCamera : MonoBehaviour {
 
+	public HexMapType type;
 	public float stickMinZoom, stickMaxZoom;
 
 	public float swivelMinZoom, swivelMaxZoom;
@@ -119,4 +120,9 @@ public class HexMapCamera : MonoBehaviour {
 		grid.CenterMap(position.x);
 		return position;
 	}
+}
+
+public enum HexMapType {
+	Overworld,
+	Hive
 }
