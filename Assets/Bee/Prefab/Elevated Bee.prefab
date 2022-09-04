@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 407176502665518475}
   - component: {fileID: 4929762326119044456}
+  - component: {fileID: 6755375789520168660}
   m_Layer: 0
   m_Name: Elevated Bee
   m_TagString: Untagged
@@ -44,6 +45,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434bba114c5e84a0f8fb19ef55b2766a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6755375789520168660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 197749607908330791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d6459d13df01843bd223630f4fb860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hexUnit: {fileID: 4929762326119044456}
+  maxFoodLevel: 200
+  currentFoodLevel: 200
+  maxWaterLevel: 300
+  currentWaterLevel: 10
+  age: 0
+  maxSemenLevel: 0
+  currentSemenLevel: 0
+  caste: 0
+  job: 0
 --- !u!1001 &472808772437218219
 PrefabInstance:
   m_ObjectHideFlags: 0
