@@ -84,18 +84,22 @@ public class HexMapCamera : MonoBehaviour {
 		Vector3 direction =
 			transform.localRotation *
 			new Vector3(xDelta, 0f, zDelta).normalized;
+		Debug.Log("xDelta " + xDelta);
+		Debug.Log("direction " + direction);
 		float damping = Mathf.Max(Mathf.Abs(xDelta), Mathf.Abs(zDelta));
 		float distance =
 			Mathf.Lerp(moveSpeedMinZoom, moveSpeedMaxZoom, zoom) *
 			damping * Time.deltaTime;
 
 		Vector3 position = transform.localPosition;
+		Debug.Log("position " + position);
 		position += direction * distance;
 		transform.localPosition =
 			grid.wrapping ? WrapPosition(position) : ClampPosition(position);
 	}
 
 	Vector3 ClampPosition (Vector3 position) {
+		
 		float xMax = (grid.cellCountX - 0.5f) * HexMetrics.innerDiameter;
 		position.x = Mathf.Clamp(position.x, 0f, xMax);
 

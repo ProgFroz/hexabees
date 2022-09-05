@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
     public TimeManager timeManager;
+    public WorkingManager workingManager;
 
     public Color pauseButtonInactive;
     public Color pauseButtonActive;
@@ -23,12 +24,14 @@ public class UIManager : MonoBehaviour {
 
     public List<Button> allActionButtons;
     public ActionButton selectedActionButton;
-    public BeeAction currentAction;
+    public BeeAction currentAction = BeeAction.None;
 
     public ChangeMapButton changeMapButton;
     private HexMapCamera currentHexMapCamera;
     public HexMapCamera overworldHexMapCamera;
     public HexMapCamera hiveHexMapCamera;
+
+    public HexCell clickedCell;
     private void Start() {
         this.currentHexMapCamera = overworldHexMapCamera.gameObject.activeSelf ? overworldHexMapCamera : hiveHexMapCamera;
         SetPauseButtonInactive();
@@ -46,6 +49,23 @@ public class UIManager : MonoBehaviour {
             Outline outline = actionButton.GetComponent<Outline>();
             outline.useGraphicAlpha = false;
             outline.enabled = false;
+        }
+    }
+
+    private void Update() {
+        if (Input.GetMouseButtonDown(0)) {
+            HexCell cell;
+            if (currentHexMapCamera.type == HexMapType.Hive) {
+                cell = hiveHexMapCamera.grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
+            }
+            else {
+                cell = overworldHexMapCamera.grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
+            }
+
+            if (currentAction != BeeAction.None && cell) {
+                workingManager.AddJobOrder(currentAction, cell);
+            }
+            
         }
     }
 

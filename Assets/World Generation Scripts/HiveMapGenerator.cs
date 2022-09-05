@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 public class HiveMapGenerator : MonoBehaviour {
 
-	public HexGrid overworldGrid;
+	public HexGrid hiveGrid;
 
 	public bool useFixedSeed;
 
@@ -138,7 +138,7 @@ public class HiveMapGenerator : MonoBehaviour {
 	};
 
 	private void Start() {
-		this.GenerateMap(40, 30, true );
+		this.GenerateMap(10, 10, false );
 	}
 
 	public void GenerateMap (int x, int z, bool wrapping) {
@@ -152,23 +152,24 @@ public class HiveMapGenerator : MonoBehaviour {
 		Random.InitState(seed);
 
 		cellCount = x * z;
-		overworldGrid.CreateMap(x, z, wrapping);
+		hiveGrid.CreateMap(x, z, wrapping);
 		if (searchFrontier == null) {
 			searchFrontier = new HexCellPriorityQueue();
 		}
 		for (int i = 0; i < cellCount; i++) {
-			overworldGrid.GetCell(i).WaterLevel = waterLevel;
+			hiveGrid.GetCell(i).WaterLevel = waterLevel;
 		}
 		CreateRegions();
 		CreateLand();
 		ErodeLand();
 		CreateClimate();
-		CreateRivers();
 		SetTerrainType();
 		for (int i = 0; i < cellCount; i++) {
-			overworldGrid.GetCell(i).SearchPhase = 0;
+			hiveGrid.GetCell(i).SearchPhase = 0;
+			hiveGrid.GetCell(i).MapType = HexMapType.Hive;
 		}
 
+		
 		Random.state = originalRandomState;
 	}
 
@@ -180,71 +181,71 @@ public class HiveMapGenerator : MonoBehaviour {
 			regions.Clear();
 		}
 
-		int borderX = overworldGrid.wrapping ? regionBorder : mapBorderX;
+		int borderX = hiveGrid.wrapping ? regionBorder : mapBorderX;
 		MapRegion region;
 		switch (regionCount) {
 		default:
-			if (overworldGrid.wrapping) {
+			if (hiveGrid.wrapping) {
 				borderX = 0;
 			}
 			region.xMin = borderX;
-			region.xMax = overworldGrid.cellCountX - borderX;
+			region.xMax = hiveGrid.cellCountX - borderX;
 			region.zMin = mapBorderZ;
-			region.zMax = overworldGrid.cellCountZ - mapBorderZ;
+			region.zMax = hiveGrid.cellCountZ - mapBorderZ;
 			regions.Add(region);
 			break;
 		case 2:
 			if (Random.value < 0.5f) {
 				region.xMin = borderX;
-				region.xMax = overworldGrid.cellCountX / 2 - regionBorder;
+				region.xMax = hiveGrid.cellCountX / 2 - regionBorder;
 				region.zMin = mapBorderZ;
-				region.zMax = overworldGrid.cellCountZ - mapBorderZ;
+				region.zMax = hiveGrid.cellCountZ - mapBorderZ;
 				regions.Add(region);
-				region.xMin = overworldGrid.cellCountX / 2 + regionBorder;
-				region.xMax = overworldGrid.cellCountX - borderX;
+				region.xMin = hiveGrid.cellCountX / 2 + regionBorder;
+				region.xMax = hiveGrid.cellCountX - borderX;
 				regions.Add(region);
 			}
 			else {
-				if (overworldGrid.wrapping) {
+				if (hiveGrid.wrapping) {
 					borderX = 0;
 				}
 				region.xMin = borderX;
-				region.xMax = overworldGrid.cellCountX - borderX;
+				region.xMax = hiveGrid.cellCountX - borderX;
 				region.zMin = mapBorderZ;
-				region.zMax = overworldGrid.cellCountZ / 2 - regionBorder;
+				region.zMax = hiveGrid.cellCountZ / 2 - regionBorder;
 				regions.Add(region);
-				region.zMin = overworldGrid.cellCountZ / 2 + regionBorder;
-				region.zMax = overworldGrid.cellCountZ - mapBorderZ;
+				region.zMin = hiveGrid.cellCountZ / 2 + regionBorder;
+				region.zMax = hiveGrid.cellCountZ - mapBorderZ;
 				regions.Add(region);
 			}
 			break;
 		case 3:
 			region.xMin = borderX;
-			region.xMax = overworldGrid.cellCountX / 3 - regionBorder;
+			region.xMax = hiveGrid.cellCountX / 3 - regionBorder;
 			region.zMin = mapBorderZ;
-			region.zMax = overworldGrid.cellCountZ - mapBorderZ;
+			region.zMax = hiveGrid.cellCountZ - mapBorderZ;
 			regions.Add(region);
-			region.xMin = overworldGrid.cellCountX / 3 + regionBorder;
-			region.xMax = overworldGrid.cellCountX * 2 / 3 - regionBorder;
+			region.xMin = hiveGrid.cellCountX / 3 + regionBorder;
+			region.xMax = hiveGrid.cellCountX * 2 / 3 - regionBorder;
 			regions.Add(region);
-			region.xMin = overworldGrid.cellCountX * 2 / 3 + regionBorder;
-			region.xMax = overworldGrid.cellCountX - borderX;
+			region.xMin = hiveGrid.cellCountX * 2 / 3 + regionBorder;
+			region.xMax = hiveGrid.cellCountX - borderX;
 			regions.Add(region);
 			break;
 		case 4:
 			region.xMin = borderX;
-			region.xMax = overworldGrid.cellCountX / 2 - regionBorder;
+			region.xMax = hiveGrid.cellCountX / 2 - regionBorder;
 			region.zMin = mapBorderZ;
-			region.zMax = overworldGrid.cellCountZ / 2 - regionBorder;
+			region.zMax = hiveGrid.cellCountZ / 2 - regionBorder;
 			regions.Add(region);
-			region.xMin = overworldGrid.cellCountX / 2 + regionBorder;
-			region.xMax = overworldGrid.cellCountX - borderX;
+			region.xMin = hiveGrid.cellCountX / 2 + regionBorder;
+			region.xMax = hiveGrid.cellCountX - borderX;
 			regions.Add(region);
-			region.zMin = overworldGrid.cellCountZ / 2 + regionBorder;
-			region.zMax = overworldGrid.cellCountZ - mapBorderZ;
+			region.zMin = hiveGrid.cellCountZ / 2 + regionBorder;
+			region.zMax = hiveGrid.cellCountZ - mapBorderZ;
 			regions.Add(region);
 			region.xMin = borderX;
-			region.xMax = overworldGrid.cellCountX / 2 - regionBorder;
+			region.xMax = hiveGrid.cellCountX / 2 - regionBorder;
 			regions.Add(region);
 			break;
 		}
@@ -362,7 +363,7 @@ public class HiveMapGenerator : MonoBehaviour {
 	void ErodeLand () {
 		List<HexCell> erodibleCells = ListPool<HexCell>.Get();
 		for (int i = 0; i < cellCount; i++) {
-			HexCell cell = overworldGrid.GetCell(i);
+			HexCell cell = hiveGrid.GetCell(i);
 			if (IsErodible(cell)) {
 				erodibleCells.Add(cell);
 			}
@@ -460,7 +461,7 @@ public class HiveMapGenerator : MonoBehaviour {
 	}
 
 	void EvolveClimate (int cellIndex) {
-		HexCell cell = overworldGrid.GetCell(cellIndex);
+		HexCell cell = hiveGrid.GetCell(cellIndex);
 		ClimateData cellClimate = climate[cellIndex];
 
 		if (cell.IsUnderwater) {
@@ -525,7 +526,7 @@ public class HiveMapGenerator : MonoBehaviour {
 	void CreateRivers () {
 		List<HexCell> riverOrigins = ListPool<HexCell>.Get();
 		for (int i = 0; i < cellCount; i++) {
-			HexCell cell = overworldGrid.GetCell(i);
+			HexCell cell = hiveGrid.GetCell(i);
 			if (cell.IsUnderwater) {
 				continue;
 			}
@@ -657,96 +658,15 @@ public class HiveMapGenerator : MonoBehaviour {
 			elevationMaximum - (elevationMaximum - waterLevel) / 2;
 		
 		for (int i = 0; i < cellCount; i++) {
-			HexCell cell = overworldGrid.GetCell(i);
+			HexCell cell = hiveGrid.GetCell(i);
 			float temperature = DetermineTemperature(cell);
 			float moisture = climate[i].moisture;
-			if (!cell.IsUnderwater) {
-				int t = 0;
-				for (; t < temperatureBands.Length; t++) {
-					if (temperature < temperatureBands[t]) {
-						break;
-					}
-				}
-				int m = 0;
-				for (; m < moistureBands.Length; m++) {
-					if (moisture < moistureBands[m]) {
-						break;
-					}
-				}
-				Biome cellBiome = biomes[t * 4 + m];
-
-				if (cellBiome.terrain == 0) {
-					if (cell.Elevation >= rockDesertElevation) {
-						cellBiome.terrain = 3;
-					}
-				}
-				else if (cell.Elevation == elevationMaximum) {
-					cellBiome.terrain = 4;
-				}
-
-				if (cellBiome.terrain == 4 || cellBiome.terrain == 3) {
-					cellBiome.plant = 0;
-				}
-				else if (cellBiome.plant < 3 && cell.HasRiver) {
-					cellBiome.plant += 1;
-				}
-
-				cell.TerrainTypeIndex = cellBiome.terrain;
-				cell.PlantLevel = cellBiome.plant;
-			}
-			else {
-				int terrain;
-				if (cell.Elevation == waterLevel - 1) {
-					int cliffs = 0, slopes = 0;
-					for (
-						HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++
-					) {
-						HexCell neighbor = cell.GetNeighbor(d);
-						if (!neighbor) {
-							continue;
-						}
-						int delta = neighbor.Elevation - cell.WaterLevel;
-						if (delta == 0) {
-							slopes += 1;
-						}
-						else if (delta > 0) {
-							cliffs += 1;
-						}
-					}
-
-					if (cliffs + slopes > 3) {
-						terrain = 1;
-					}
-					else if (cliffs > 0) {
-						terrain = 3;
-					}
-					else if (slopes > 0) {
-						terrain = 0;
-					}
-					else {
-						terrain = 1;
-					}
-				}
-				else if (cell.Elevation >= waterLevel) {
-					terrain = 1;
-				}
-				else if (cell.Elevation < 0) {
-					terrain = 3;
-				}
-				else {
-					terrain = 2;
-				}
-
-				if (terrain == 1 && temperature < temperatureBands[0]) {
-					terrain = 2;
-				}
-				cell.TerrainTypeIndex = terrain;
-			}
+			cell.TerrainTypeIndex = 5;
 		}
 	}
 
 	float DetermineTemperature (HexCell cell) {
-		float latitude = (float)cell.coordinates.Z / overworldGrid.cellCountZ;
+		float latitude = (float)cell.coordinates.Z / hiveGrid.cellCountZ;
 		if (hemisphere == HemisphereMode.Both) {
 			latitude *= 2f;
 			if (latitude > 1f) {
@@ -772,7 +692,7 @@ public class HiveMapGenerator : MonoBehaviour {
 	}
 
 	HexCell GetRandomCell (MapRegion region) {
-		return overworldGrid.GetCell(
+		return hiveGrid.GetCell(
 			Random.Range(region.xMin, region.xMax),
 			Random.Range(region.zMin, region.zMax)
 		);

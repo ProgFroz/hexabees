@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 [RequireComponent(typeof(HexUnit))]
 public class Bee : MonoBehaviour {
@@ -30,10 +31,55 @@ public class Bee : MonoBehaviour {
     private Caste caste = Caste.None;
     [SerializeField]
     private Job job = Job.None;
-    
+
+    public JobOrder assignedJob = null;
+
+    public Dictionary<BeeAction, PriorityValue> priorities = new Dictionary<BeeAction, PriorityValue>();
+
+    public Dictionary<BeeAction, PriorityValue> Priorities {
+        get => priorities;
+        set => priorities = value;
+    }
+
     void Start() {
+        
         GenerateStats();
+        caste = Caste.Worker;
+        job = Job.Collector;
+        UpdatePriorities();
         InvokeRepeating("DrainStats", 0.0f, 1f);
+    }
+
+    private void UpdatePriorities() {
+        priorities.Add(BeeAction.Breed, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Breed) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Destroy, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Destroy) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Evaporator, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporator) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Fertilize, (this.caste == Caste.Drone ? GetRecentPriority(BeeAction.Fertilize) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Gather, (this.job == Job.Collector ? GetRecentPriority(BeeAction.Gather) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Lay, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Lay) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Mixer, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mixer) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Pollinate, (this.job == Job.Collector ? GetRecentPriority(BeeAction.Pollinate) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Refiner, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refiner) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Royal, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Royal) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Storage, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Storage) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Cover, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Cover) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Evaporate, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporate) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Refine, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refine) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Mix, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mix) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Feed, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Feed) : PriorityValue.Cant));
+    }
+
+    private PriorityValue GetRecentPriority(BeeAction action) {
+        Debug.Log(action);
+        if (priorities.ContainsKey(action)) {
+            PriorityValue value = priorities[action];
+            if (value == PriorityValue.Cant) return PriorityValue.Medium;
+            return value;
+        }
+        else {
+            return PriorityValue.Medium;
+        }
+        
     }
 
     private void GenerateStats() {
@@ -43,9 +89,17 @@ public class Bee : MonoBehaviour {
         CurrentWaterLevel = MaxWaterLevel;
     }
 
+    public void AssignJob(JobOrder jobOrder) {
+        this.assignedJob = jobOrder;
+    }
+
     // Update is called once per frame
     void Update()
     {
+        
+    }
+
+    public void UpdatePriorities(BeeAction action, PriorityValue value) {
         
     }
     

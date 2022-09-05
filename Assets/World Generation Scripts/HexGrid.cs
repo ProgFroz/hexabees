@@ -44,6 +44,11 @@ public class HexGrid : MonoBehaviour {
 
 	HexCellShaderData cellShaderData;
 
+	public List<HexUnit> Units {
+		get => units;
+		set => units = value;
+	}
+
 	void Awake () {
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
@@ -528,4 +533,6 @@ public class HexGrid : MonoBehaviour {
 			columns[i].localPosition = position;
 		}
 	}
+	
+	
 }

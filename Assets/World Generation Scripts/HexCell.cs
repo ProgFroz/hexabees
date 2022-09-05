@@ -40,6 +40,13 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
+	private HexMapType _mapType;
+
+	public HexMapType MapType {
+		get => _mapType;
+		set => _mapType = value;
+	}
+
 	public int WaterLevel {
 		get {
 			return waterLevel;
@@ -221,6 +228,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
+	
 	public int TerrainTypeIndex {
 		get {
 			return terrainTypeIndex;
@@ -277,7 +285,7 @@ public class HexCell : MonoBehaviour {
 
 	public HexCellShaderData ShaderData { get; set; }
 
-	int terrainTypeIndex;
+	public int terrainTypeIndex;
 
 	int elevation = int.MinValue;
 	int waterLevel;

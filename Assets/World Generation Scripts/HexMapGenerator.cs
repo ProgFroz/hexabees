@@ -167,6 +167,7 @@ public class HexMapGenerator : MonoBehaviour {
 		SetTerrainType();
 		for (int i = 0; i < cellCount; i++) {
 			overworldGrid.GetCell(i).SearchPhase = 0;
+			overworldGrid.GetCell(i).MapType = HexMapType.Overworld;
 		}
 
 		Random.state = originalRandomState;

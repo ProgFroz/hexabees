@@ -241,6 +241,15 @@ public enum BeeAction {
     Breed,
     Royal,
     
-    None
+    None,
+    
+    // Nurse
+    Feed,
+    Cover,
+    
+    // Builder
+    Mix,
+    Refine,
+    Evaporate
 
 }
