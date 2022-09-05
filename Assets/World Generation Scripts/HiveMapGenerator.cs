@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class HexMapGenerator : MonoBehaviour {
+public class HiveMapGenerator : MonoBehaviour {
 
 	public HexGrid overworldGrid;
 
