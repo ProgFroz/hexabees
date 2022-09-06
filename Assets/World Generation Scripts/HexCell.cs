@@ -21,9 +21,11 @@ public class HexCell : MonoBehaviour {
 	private void Update() {
 		this.hasJob = this._assignedJob != null;
 		if (this._assignedJob != null) {
-			EnableHighlight(Color.cyan);
+			SetLabel(this._assignedJob.Progress + "%");
+			EnableHighlight(new Color(255f, (this._assignedJob.Progress / 100), (this._assignedJob.Progress / 100), 1f));
 		}
 		else {
+			SetLabel("");
 			DisableHighlight();
 		}
 	}
