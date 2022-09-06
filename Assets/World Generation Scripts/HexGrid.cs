@@ -14,6 +14,8 @@ public class HexGrid : MonoBehaviour {
 	public Text cellLabelPrefab;
 	public HexGridChunk chunkPrefab;
 	public HexUnit unitPrefab;
+	public WorkingManager workingManager;
+	public HexGameUI hexGameUI;
 
 	public Texture2D noiseSource;
 

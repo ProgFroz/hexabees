@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434bba114c5e84a0f8fb19ef55b2766a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bee: {fileID: 6755375789520168660}
 --- !u!114 &6755375789520168660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,10 +59,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hexUnit: {fileID: 4929762326119044456}
+  hasJob: 0
+  _workingManager: {fileID: 0}
+  hexGameUI: {fileID: 0}
   maxFoodLevel: 200
   currentFoodLevel: 200
   maxWaterLevel: 300
-  currentWaterLevel: 10
+  currentWaterLevel: 300
   age: 0
   maxSemenLevel: 0
   currentSemenLevel: 0

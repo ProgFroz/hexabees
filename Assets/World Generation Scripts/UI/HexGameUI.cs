@@ -45,7 +45,7 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
-	void DoPathfinding () {
+	public void DoPathfinding () {
 		if (UpdateCurrentCell()) {
 			if (currentCell && selectedUnit.IsValidDestination(currentCell)) {
 				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
@@ -55,17 +55,41 @@ public class HexGameUI : MonoBehaviour {
 			}
 		}
 	}
+	
+	public void DoPathfinding(HexUnit unit, HexCell cell) {
+		if (cell && unit.IsValidDestination(cell)) {
+			grid.FindPath(unit.Location, cell, unit);
+		}
+		else {
+			grid.ClearPath();
+		}
+	}
 
-	void DoMove () {
+	public void DoMove () {
 		if (grid.HasPath) {
 			selectedUnit.Travel(grid.GetPath());
 			grid.ClearPath();
 		}
 	}
+	
+	public void DoMove(HexUnit unit) {
+		if (grid.HasPath) {
+			unit.Travel(grid.GetPath());
+			grid.ClearPath();
+		}
+	}
 
-	bool UpdateCurrentCell () {
+	public bool UpdateCurrentCell() {
 		HexCell cell =
 			grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
+		if (cell != currentCell) {
+			currentCell = cell;
+			return true;
+		}
+		return false;
+	}
+	
+	public bool UpdateCurrentCell(HexCell cell) {
 		if (cell != currentCell) {
 			currentCell = cell;
 			return true;

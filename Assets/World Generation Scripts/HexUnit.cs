@@ -8,6 +8,7 @@ public class HexUnit : MonoBehaviour {
 	const float rotationSpeed = 180f;
 	const float travelSpeed = 4f;
 
+	public Bee bee;
 	public static HexUnit unitPrefab;
 
 	public HexGrid Grid { get; set; }
@@ -76,6 +77,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	IEnumerator TravelPath () {
+		
 		Vector3 a, b, c = pathToTravel[0].Position;
 		yield return LookAt(pathToTravel[1].Position);
 
@@ -137,6 +139,8 @@ public class HexUnit : MonoBehaviour {
 		orientation = transform.localRotation.eulerAngles.y;
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
+		
+		this.bee.FinishJob();
 	}
 
 	IEnumerator LookAt (Vector3 point) {
@@ -199,6 +203,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public void Die () {
+		bee.Die();
 		if (location) {
 			Grid.DecreaseVisibility(location, VisionRange);
 		}

@@ -1,14 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.TestTools;
 
 [RequireComponent(typeof(HexUnit))]
 public class Bee : MonoBehaviour {
-
+    
     [SerializeField]
     private HexUnit hexUnit;
     
+    public bool hasJob;
+
+    public WorkingManager _workingManager;
+    
+    public HexGameUI hexGameUI;
     [SerializeField]
     private int maxFoodLevel;
     [SerializeField]
@@ -32,9 +38,13 @@ public class Bee : MonoBehaviour {
     [SerializeField]
     private Job job = Job.None;
 
-    public JobOrder assignedJob = null;
+    private JobOrder _assignedJob = null;
 
     public Dictionary<BeeAction, PriorityValue> priorities = new Dictionary<BeeAction, PriorityValue>();
+    
+    float _time;
+    private float _interval = 3f;
+    public bool doWork = false;
 
     public Dictionary<BeeAction, PriorityValue> Priorities {
         get => priorities;
@@ -42,11 +52,13 @@ public class Bee : MonoBehaviour {
     }
 
     void Start() {
-        
+        _time = 0f;
         GenerateStats();
         caste = Caste.Worker;
         job = Job.Collector;
         UpdatePriorities();
+        WorkingManager = hexUnit.Grid.workingManager;
+        hexGameUI = hexUnit.Grid.hexGameUI;
         InvokeRepeating("DrainStats", 0.0f, 1f);
     }
 
@@ -70,7 +82,6 @@ public class Bee : MonoBehaviour {
     }
 
     private PriorityValue GetRecentPriority(BeeAction action) {
-        Debug.Log(action);
         if (priorities.ContainsKey(action)) {
             PriorityValue value = priorities[action];
             if (value == PriorityValue.Cant) return PriorityValue.Medium;
@@ -85,17 +96,17 @@ public class Bee : MonoBehaviour {
     private void GenerateStats() {
         MaxFoodLevel = 100;
         MaxWaterLevel = 300;
-        CurrentFoodLevel = 10;
+        CurrentFoodLevel = MaxFoodLevel;
         CurrentWaterLevel = MaxWaterLevel;
     }
 
     public void AssignJob(JobOrder jobOrder) {
-        this.assignedJob = jobOrder;
+        _assignedJob = jobOrder;
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
+        this.hasJob = this._assignedJob != null;
         
     }
 
@@ -155,6 +166,47 @@ public class Bee : MonoBehaviour {
     public Job Job {
         get => job;
         set => job = value;
+    }
+
+    public WorkingManager WorkingManager {
+        get => _workingManager;
+        set => _workingManager = value;
+    }
+
+    public string PrioritiesToString() {
+        string str = "";
+        foreach (KeyValuePair<BeeAction, PriorityValue> kv in Priorities) {
+            str += kv.Key + " - " + kv.Value;
+            str += "\n";
+        }
+
+        return str;
+    }
+
+    public void Die() {
+        if (this._assignedJob != null) {
+            WorkingManager.RequeueJob(this._assignedJob);
+        }
+    }
+
+    public void Travel(HexCell destination) {
+        this.hexGameUI.DoPathfinding(this.hexUnit, destination);
+        this.hexGameUI.DoMove(this.hexUnit);
+    }
+
+    public JobOrder GetAssignedJob() {
+        return this._assignedJob;
+    }
+
+    public void FinishJob() {
+        this.WorkingManager.FinishJob(this._assignedJob);
+    }
+    
+    private void Work() {
+        if (_assignedJob.Progress >= 1) {
+            FinishJob();
+        }
+        _assignedJob.Progress += _interval / _assignedJob.GetRequiredHours();
     }
 }
 

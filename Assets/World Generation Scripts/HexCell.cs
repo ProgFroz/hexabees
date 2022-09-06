@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
@@ -14,6 +15,19 @@ public class HexCell : MonoBehaviour {
 
 	public int ColumnIndex { get; set; }
 
+	private JobOrder _assignedJob = null;
+	public bool hasJob;
+	
+	private void Update() {
+		this.hasJob = this._assignedJob != null;
+		if (this._assignedJob != null) {
+			EnableHighlight(Color.cyan);
+		}
+		else {
+			DisableHighlight();
+		}
+	}
+	
 	public int Elevation {
 		get {
 			return elevation;
@@ -599,5 +613,13 @@ public class HexCell : MonoBehaviour {
 
 	public void SetMapData (float data) {
 		ShaderData.SetMapData(this, data);
+	}
+
+	public void AssignJob(JobOrder jobOrder) {
+		this._assignedJob = jobOrder;
+	}
+
+	public JobOrder GetAssignedJob() {
+		return this._assignedJob;
 	}
 }

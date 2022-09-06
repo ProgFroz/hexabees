@@ -22,24 +22,27 @@ public class WorkingManager : MonoBehaviour {
         jobOrder.Finished = false;
         jobOrder.MapType = hexCell.MapType;
         jobOrder.Cell = hexCell;
+        
         jobQueue.Add(jobOrder);
+        hexCell.AssignJob(jobOrder);
         return jobOrder;
     }
 
     private void Update() {
         AssignJobs();
+        
     }
 
     private void AssignJobs() {
         for (int i = 0; i < jobQueue.Count; i++) {
             JobOrder jobOrder = jobQueue[i];
             Bee bee = FindBee(jobOrder);
-            Debug.Log(bee);
             if (bee) {
                 jobOrder.AssignedBee = bee;
                 bee.AssignJob(jobOrder);
                 this.activeJobs.Add(jobOrder);
                 this.jobQueue.Remove(jobOrder);
+                bee.Travel(jobOrder.Cell);
             }
         }
     }
@@ -58,6 +61,16 @@ public class WorkingManager : MonoBehaviour {
         return this.activeJobs.Remove(jobOrder);
     }
 
+    public bool FinishJob(JobOrder jobOrder) {
+        if (!activeJobs.Contains((jobOrder))) return false;
+        jobOrder.AssignedBee.AssignJob(null);
+        jobOrder.AssignedBee = null;
+        jobOrder.Cell.AssignJob(null);
+        jobOrder.Finished = true;
+        return this.activeJobs.Remove(jobOrder);
+        
+    }
+
     private Bee FindBee(JobOrder jobOrder) {
         List<Bee> possibles = new List<Bee>();
         List<Bee> highestPriorities = new List<Bee>();
@@ -72,8 +85,6 @@ public class WorkingManager : MonoBehaviour {
             }
             
         }
-        
-        Debug.Log(possibles.Count);
         for (int i = 0; i < hiveGrid.Units.Count; i++) {
             HexUnit unit = hiveGrid.Units[i];
             if (unit) {
@@ -108,21 +119,22 @@ public class WorkingManager : MonoBehaviour {
     }
 
     private bool CheckIfBeeCan(Bee bee, JobOrder jobOrder) {
+        if (bee.priorities.Count < 1) return false;
         PriorityValue value = bee.Priorities[jobOrder.Action];
-        Debug.Log(bee.assignedJob + " & " + (value != PriorityValue.Cant && value != PriorityValue.Wont));
-        return (value != PriorityValue.Cant && value != PriorityValue.Wont);
+        return (value != PriorityValue.Cant && value != PriorityValue.Wont) && bee.GetAssignedJob() == null;
     }
     
     
 }
 
-[Serializable]
+[System.Serializable]
 public class JobOrder {
     private HexMapType mapType;
     private BeeAction action;
     private Bee assignedBee;
     private HexCell cell;
     private bool finished;
+    private float progress;
 
     public BeeAction Action {
         get => action;
@@ -147,6 +159,37 @@ public class JobOrder {
     public HexCell Cell {
         get => cell;
         set => cell = value;
+    }
+
+    public float Progress {
+        get => progress;
+        set => progress = value;
+    }
+
+    public int GetRequiredHours() {
+        return GetRequiredHoursByAction(this.action);
+    }
+
+    private int GetRequiredHoursByAction(BeeAction action) {
+        switch (action) {
+            case BeeAction.Breed: return 3;
+            case BeeAction.Cover: return 1;
+            case BeeAction.Destroy: return 2;
+            case BeeAction.Evaporate: return 1;
+            case BeeAction.Evaporator: return 3;
+            case BeeAction.Feed: return 1;
+            case BeeAction.Fertilize: return 2;
+            case BeeAction.Gather: return 1;
+            case BeeAction.Lay: return 2;
+            case BeeAction.Mix: return 1;
+            case BeeAction.Mixer: return 3;
+            case BeeAction.Pollinate: return 2;
+            case BeeAction.Refine: return 1;
+            case BeeAction.Refiner: return 3;
+            case BeeAction.Royal: return 3;
+            case BeeAction.Storage: return 3;
+            default: return 10;
+        }
     }
 }
 
