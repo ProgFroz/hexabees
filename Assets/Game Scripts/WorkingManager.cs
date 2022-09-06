@@ -48,10 +48,40 @@ public class WorkingManager : MonoBehaviour {
     }
 
     public bool CancelJob(JobOrder jobOrder) {
+        Debug.Log(jobOrder.Cell != null);
         Bee bee = jobOrder.AssignedBee;
-        bee.AssignJob(null);
-        jobOrder.AssignedBee = null;
+        HexCell cell = jobOrder.Cell;
+        if (bee) {
+            bee.AssignJob(null);
+            jobOrder.AssignedBee = null;
+        }
+        cell.AssignJob(null);
+        jobOrder.Cell = null;
+
+        Debug.Log("Cancel3");
+        this.jobQueue.Remove(jobOrder);
         return this.activeJobs.Remove(jobOrder);
+    }
+    
+    public bool CancelJob(HexCell cell) {
+        Debug.Log("Cancel2");
+        JobOrder order = FindJobOrder(cell);
+        if (order != null) {
+            return this.CancelJob(order);
+        }
+
+        return false;
+    }
+
+    public JobOrder FindJobOrder(HexCell cell) {
+        foreach (JobOrder jobOrder in activeJobs) {
+            if (jobOrder.Cell == cell) return jobOrder;
+        }
+        foreach (JobOrder jobOrder in jobQueue) {
+            if (jobOrder.Cell == cell) return jobOrder;
+        }
+
+        return null;
     }
 
     public bool RequeueJob(JobOrder jobOrder) {
@@ -135,6 +165,11 @@ public class JobOrder {
     private HexCell cell;
     private bool finished;
     private float progress;
+
+    // public override string ToString() {
+    //     return "";
+    //     // return "Action: " + action + ", Assigned Bee: " + assignedBee.name + ", Cell: " + cell.coordinates;
+    // }
 
     public BeeAction Action {
         get => action;

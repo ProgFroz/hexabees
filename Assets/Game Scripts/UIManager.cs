@@ -63,7 +63,13 @@ public class UIManager : MonoBehaviour {
             }
 
             if (currentAction != BeeAction.None && cell) {
-                workingManager.AddJobOrder(currentAction, cell);
+                if (currentAction != BeeAction.Cancel) {
+                    workingManager.AddJobOrder(currentAction, cell);
+                }
+                else {
+                    Debug.Log("Cancel1");
+                    workingManager.CancelJob(cell);
+                }
             }
             
         }
