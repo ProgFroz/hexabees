@@ -63,7 +63,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public bool IsValidDestination (HexCell cell) {
-		return cell.IsExplored && !cell.Unit ;
+		return !cell.Unit ;
 	}
 
 	public void Travel (List<HexCell> path) {
@@ -140,7 +140,8 @@ public class HexUnit : MonoBehaviour {
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
 		
-		this.bee.FinishJob();
+		
+
 	}
 
 	IEnumerator LookAt (Vector3 point) {

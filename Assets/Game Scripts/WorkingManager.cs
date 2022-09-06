@@ -179,7 +179,7 @@ public class JobOrder {
             case BeeAction.Evaporator: return 3;
             case BeeAction.Feed: return 1;
             case BeeAction.Fertilize: return 2;
-            case BeeAction.Gather: return 1;
+            case BeeAction.Gather: return 10;
             case BeeAction.Lay: return 2;
             case BeeAction.Mix: return 1;
             case BeeAction.Mixer: return 3;

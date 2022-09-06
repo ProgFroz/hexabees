@@ -43,7 +43,7 @@ public class Bee : MonoBehaviour {
     public Dictionary<BeeAction, PriorityValue> priorities = new Dictionary<BeeAction, PriorityValue>();
     
     float _time;
-    private float _interval = 3f;
+    private float _interval = 1f;
     public bool doWork = false;
 
     public Dictionary<BeeAction, PriorityValue> Priorities {
@@ -107,7 +107,14 @@ public class Bee : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         this.hasJob = this._assignedJob != null;
+        this.doWork = this._assignedJob != null && this._assignedJob.Cell == this.hexUnit.Location;
         
+        
+        _time += Time.deltaTime;
+        while(_time >= _interval) {
+            Work();
+            _time -= _interval;
+        }
     }
 
     public void UpdatePriorities(BeeAction action, PriorityValue value) {
@@ -203,10 +210,14 @@ public class Bee : MonoBehaviour {
     }
     
     private void Work() {
-        if (_assignedJob.Progress >= 1) {
-            FinishJob();
+        if (_assignedJob != null && doWork) {
+            Debug.Log(_assignedJob.Progress);
+            _assignedJob.Progress += (100 / _assignedJob.GetRequiredHours());
+            if (_assignedJob.Progress >= 100) {
+                FinishJob();
+            }
         }
-        _assignedJob.Progress += _interval / _assignedJob.GetRequiredHours();
+        
     }
 }
 

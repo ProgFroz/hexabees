@@ -62,3 +62,11 @@ sysinfo.txt
 crashlytics-build.properties
 
 Assets/AssetStore
+
+Assets/PlayMaker/
+
+Assets/PostProcessing/
+
+Assets/Plugins/
+
+Assets/Gizmos/
