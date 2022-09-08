@@ -51,6 +51,39 @@ public class HexGrid : MonoBehaviour {
 		set => units = value;
 	}
 
+	public List<Bee> GetAllBees() {
+		List<Bee> bees = new List<Bee>();
+		foreach (HexUnit unit in Units) {
+			bees.Add(unit.GetComponent<Bee>());
+		}
+
+		return bees;
+	}
+
+	public List<Bee> GetBees(Caste caste) {
+		List<Bee> bees = new List<Bee>();
+		foreach (Bee bee in GetAllBees()) {
+			if (bee.Caste == caste) bees.Add(bee);
+		}
+		return bees;
+	}
+	
+	public List<Bee> GetBees(Metamorphosis metamorphosis) {
+		List<Bee> bees = new List<Bee>();
+		foreach (Bee bee in GetAllBees()) {
+			if (bee.Metamorphosis == metamorphosis) bees.Add(bee);
+		}
+		return bees;
+	}
+
+	public List<Bee> GetBees(Caste caste, Metamorphosis metamorphosis) {
+		List<Bee> bees = new List<Bee>();
+		foreach (Bee bee in GetBees(caste)) {
+			if (bee.Metamorphosis == metamorphosis) bees.Add(bee);
+		}
+		return bees;
+	}
+	
 	void Awake () {
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);

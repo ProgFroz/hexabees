@@ -6,6 +6,7 @@ using System.Linq;
 using Unity.Jobs.LowLevel.Unsafe;
 
 public class WorkingManager : MonoBehaviour {
+    public TimeManager timeManager;
     public HexGrid overworldGrid;
     public HexGrid hiveGrid;
     public List<JobOrder> jobQueue = new List<JobOrder>();
@@ -25,6 +26,7 @@ public class WorkingManager : MonoBehaviour {
         
         jobQueue.Add(jobOrder);
         hexCell.AssignJob(jobOrder);
+        hexCell.ShowJobHighlight();
         return jobOrder;
     }
 
@@ -56,20 +58,17 @@ public class WorkingManager : MonoBehaviour {
             jobOrder.AssignedBee = null;
         }
         cell.AssignJob(null);
+        cell.DisableJobHighlight();
         jobOrder.Cell = null;
-
-        Debug.Log("Cancel3");
         this.jobQueue.Remove(jobOrder);
         return this.activeJobs.Remove(jobOrder);
     }
     
     public bool CancelJob(HexCell cell) {
-        Debug.Log("Cancel2");
         JobOrder order = FindJobOrder(cell);
         if (order != null) {
             return this.CancelJob(order);
         }
-
         return false;
     }
 
@@ -96,6 +95,7 @@ public class WorkingManager : MonoBehaviour {
         jobOrder.AssignedBee.AssignJob(null);
         jobOrder.AssignedBee = null;
         jobOrder.Cell.AssignJob(null);
+        jobOrder.Cell.DisableJobHighlight();
         jobOrder.Finished = true;
         return this.activeJobs.Remove(jobOrder);
         
@@ -151,7 +151,7 @@ public class WorkingManager : MonoBehaviour {
     private bool CheckIfBeeCan(Bee bee, JobOrder jobOrder) {
         if (bee.priorities.Count < 1) return false;
         PriorityValue value = bee.Priorities[jobOrder.Action];
-        return (value != PriorityValue.Cant && value != PriorityValue.Wont) && bee.GetAssignedJob() == null;
+        return (value != PriorityValue.Cant && value != PriorityValue.Wont) && bee.GetAssignedJob() == null && bee.CanWork();
     }
     
     

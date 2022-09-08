@@ -87,7 +87,7 @@ public class HexMapCamera : MonoBehaviour {
 		float damping = Mathf.Max(Mathf.Abs(xDelta), Mathf.Abs(zDelta));
 		float distance =
 			Mathf.Lerp(moveSpeedMinZoom, moveSpeedMaxZoom, zoom) *
-			damping * Time.deltaTime;
+			damping * Time.deltaTime;	
 
 		Vector3 position = transform.localPosition;
 		position += direction * distance;

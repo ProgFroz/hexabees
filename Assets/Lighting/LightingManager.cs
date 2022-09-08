@@ -14,11 +14,11 @@ public class LightingManager : MonoBehaviour
     [SerializeField] private Light DirectionalLight;
     [SerializeField] private LightingPreset Preset;
     [SerializeField] private GameObject skyboxManager;
-    
 
     [SerializeField, Range(0,24)] public float TimeOfDay;
     public TimeManager timeManager;
 
+    private int _recentHour;
     private void UpdateLighting(float timePercent)
     {
         RenderSettings.ambientLight = Preset.AmbientColor.Evaluate(timePercent);
@@ -55,12 +55,17 @@ public class LightingManager : MonoBehaviour
                 privateTimeProgressFactor = timeProgressFactor;
             }
             TimeOfDay += (Time.deltaTime * privateTimeProgressFactor);
+
+            if ((int) TimeOfDay != _recentHour) {
+                timeManager.UpdateHour();
+            }
             timeManager.UpdateTime((int)TimeOfDay);
             if (TimeOfDay >= 24)
             {
                 TimeOfDay -= 24;
             }
             UpdateLighting(TimeOfDay / 24f);
+            _recentHour = (int) TimeOfDay;
         }
     }
 }

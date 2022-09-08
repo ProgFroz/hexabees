@@ -17,19 +17,66 @@ public class HexCell : MonoBehaviour {
 
 	private JobOrder _assignedJob = null;
 	public bool hasJob;
+	public bool isHovered = false;
+	private Image highlight;
+	private HighlightImageHolder highlightImageHolder;
+	
+	public Color cellHoverColor;
+	public Gradient cellJobGradient;
 	
 	private void Update() {
 		this.hasJob = this._assignedJob != null;
-		if (this._assignedJob != null) {
-			SetLabel(this._assignedJob.Progress + "%");
-			EnableHighlight(new Color(255f, (this._assignedJob.Progress / 100), (this._assignedJob.Progress / 100), 1f));
+		if (hasJob) {
+			ShowJobHighlight();
 		}
-		else {
-			SetLabel("");
-			DisableHighlight();
+		if (isHovered && !hasJob) ShowHoverHighlight();
+		else if (!isHovered && !hasJob) {
+			DisableJobHighlight();
+			DisableHighlightImage();
 		}
 	}
+
+	private void Start() {
+		highlight = uiRect.GetChild(0).GetComponent<Image>();
+		highlightImageHolder = uiRect.GetChild(0).GetComponent<HighlightImageHolder>();
+		highlightImageHolder.cell = this;
+	}
+
+	public void ShowJobHighlight() {
+		//SetLabel(this._assignedJob.Progress + "%");
+		Color color = cellJobGradient.Evaluate((this._assignedJob.Progress / 100));
+		color.a = 0.5f;
+		EnableHighlight(color);
+		UpdateHighlightImage(_assignedJob.Action);
+		ShowHighlightImage();
+	}
 	
+	public void ShowHoverHighlight() {
+		EnableHighlight(cellHoverColor);
+		UpdateHighlightImage();
+	}
+
+	public void DisableJobHighlight() {
+		SetLabel("");
+		DisableHighlight();
+	}
+
+	
+	public void UpdateHighlightImage(BeeAction action) {
+		this.highlightImageHolder.SetImage(action);
+	}
+	public void UpdateHighlightImage() {
+		BeeAction currentAction = this.highlightImageHolder.SetHoverImage();
+		if (currentAction == BeeAction.None || !CanPerformJob(currentAction)) DisableHighlightImage();
+		else ShowHighlightImage();
+	}
+	
+	public void ShowHighlightImage() {
+		this.highlightImageHolder.SetActive(true);
+	}
+	public void DisableHighlightImage() {
+		this.highlightImageHolder.SetActive(false);
+	}
 	public int Elevation {
 		get {
 			return elevation;
@@ -608,7 +655,7 @@ public class HexCell : MonoBehaviour {
 	}
 
 	public void EnableHighlight (Color color) {
-		Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+		
 		highlight.color = color;
 		highlight.enabled = true;
 	}
@@ -623,5 +670,12 @@ public class HexCell : MonoBehaviour {
 
 	public JobOrder GetAssignedJob() {
 		return this._assignedJob;
+	}
+
+	public bool CanPerformJob(BeeAction action) {
+		switch (action) {
+			case BeeAction.Gather: return PlantLevel > 0;
+			default: return true;
+		}
 	}
 }

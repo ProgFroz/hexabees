@@ -209,6 +209,7 @@ public class HexUnit : MonoBehaviour {
 			Grid.DecreaseVisibility(location, VisionRange);
 		}
 		location.Unit = null;
+		this.Grid.Units.Remove(this);
 		Destroy(gameObject);
 	}
 

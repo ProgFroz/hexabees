@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -12,7 +14,9 @@ public class Bee : MonoBehaviour {
     
     public bool hasJob;
 
-    public WorkingManager _workingManager;
+    public WorkingManager workingManager;
+
+    public TimeManager timeManager;
     
     public HexGameUI hexGameUI;
     [SerializeField]
@@ -26,7 +30,10 @@ public class Bee : MonoBehaviour {
     private int currentWaterLevel;
     
     [SerializeField]
-    private int age;
+    private int ageHours;
+    [SerializeField]
+    private int ageDays;
+    private int _hourBorn;
     
     [SerializeField]
     private int maxSemenLevel;
@@ -37,6 +44,8 @@ public class Bee : MonoBehaviour {
     private Caste caste = Caste.None;
     [SerializeField]
     private Job job = Job.None;
+    [SerializeField]
+    private Metamorphosis metamorphosis = Metamorphosis.Egg;
 
     private JobOrder _assignedJob = null;
 
@@ -46,6 +55,14 @@ public class Bee : MonoBehaviour {
     private float _interval = 1f;
     public bool doWork = false;
 
+    [SerializeField] private bool canWork = false;
+
+    private GameObject activeModel;
+    [SerializeField] private GameObject workerModel;
+    [SerializeField] private GameObject queenModel;
+    [SerializeField] private GameObject droneModel;
+    [SerializeField] private GameObject eggModel;
+
     public Dictionary<BeeAction, PriorityValue> Priorities {
         get => priorities;
         set => priorities = value;
@@ -53,12 +70,16 @@ public class Bee : MonoBehaviour {
 
     void Start() {
         _time = 0f;
+        
         GenerateStats();
         caste = Caste.Worker;
         job = Job.Collector;
+        UpdateMetamorphosis(Metamorphosis.Egg);
         UpdatePriorities();
         WorkingManager = hexUnit.Grid.workingManager;
         hexGameUI = hexUnit.Grid.hexGameUI;
+        timeManager = WorkingManager.timeManager;
+        this._hourBorn = timeManager.GetCurrentHoursSinceBegin();
         InvokeRepeating("DrainStats", 0.0f, 1f);
     }
 
@@ -81,6 +102,11 @@ public class Bee : MonoBehaviour {
         priorities.Add(BeeAction.Feed, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Feed) : PriorityValue.Cant));
     }
 
+    public void UpdateMetamorphosis(Metamorphosis metamorphosis) {
+        this.metamorphosis = metamorphosis;
+        
+        this.UpdateModel(metamorphosis);
+    }
     private PriorityValue GetRecentPriority(BeeAction action) {
         if (priorities.ContainsKey(action)) {
             PriorityValue value = priorities[action];
@@ -106,6 +132,8 @@ public class Bee : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        ageHours = timeManager.GetCurrentHoursSinceBegin() - this._hourBorn;
+        ageDays = (int) Math.Floor((decimal) (ageHours / 24));
         this.hasJob = this._assignedJob != null;
         this.doWork = this._assignedJob != null && this._assignedJob.Cell == this.hexUnit.Location;
         
@@ -114,6 +142,11 @@ public class Bee : MonoBehaviour {
         while(_time >= _interval) {
             Work();
             _time -= _interval;
+        }
+
+        int daysLeft = GetDaysUntilNextMetamorphosis();
+        if (daysLeft == 0) {
+            this.UpdateMetamorphosis(GetUpcomingMetamorphosis(metamorphosis));
         }
     }
 
@@ -151,8 +184,8 @@ public class Bee : MonoBehaviour {
     }
 
     public int Age {
-        get => age;
-        set => age = value;
+        get => ageHours;
+        set => ageHours = value;
     }
 
     public int MaxSemenLevel {
@@ -176,8 +209,8 @@ public class Bee : MonoBehaviour {
     }
 
     public WorkingManager WorkingManager {
-        get => _workingManager;
-        set => _workingManager = value;
+        get => workingManager;
+        set => workingManager = value;
     }
 
     public string PrioritiesToString() {
@@ -211,13 +244,138 @@ public class Bee : MonoBehaviour {
     
     private void Work() {
         if (_assignedJob != null && doWork) {
-            Debug.Log(_assignedJob.Progress);
             _assignedJob.Progress += (100 / _assignedJob.GetRequiredHours());
             if (_assignedJob.Progress >= 100) {
                 FinishJob();
             }
         }
         
+    }
+
+    public void UpdateModel(Metamorphosis metamorphosis) {
+        if (this.activeModel == null) this.activeModel = eggModel;
+
+        GameObject prevModel = this.activeModel;
+
+        switch (metamorphosis) {
+            case Metamorphosis.Adult: 
+                switch (Caste) {
+                    case Caste.Drone:
+                        activeModel = droneModel;
+                        break;
+                    case Caste.Queen:
+                        activeModel = queenModel;
+                        break;
+                    case Caste.Worker:
+                        activeModel = workerModel;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case Metamorphosis.Egg:
+                activeModel = eggModel;
+                break;
+            case Metamorphosis.Larva:
+            case Metamorphosis.Pupa:
+                activeModel = eggModel;
+                break;
+        }
+
+        if (activeModel != prevModel) {
+            LeanTween.scale(gameObject, Vector3.zero, 1f).setOnComplete(() => {
+                prevModel.SetActive(false);
+                activeModel.SetActive(true);
+                LeanTween.scale(gameObject, Vector3.one, 1f).setOnComplete(() => {
+                    canWork = true;
+                }).setEaseInOutCubic();
+            }).setEaseInOutCubic();
+        }
+        
+        
+    }
+
+    public static int GetRequiredDaysForMetamorphosis(Caste caste, Metamorphosis metamorphosis) {
+        switch (metamorphosis) {
+            case Metamorphosis.Egg: return 0;
+            case Metamorphosis.Larva:
+                switch (caste) {
+                    case Caste.Drone:
+                    case Caste.Queen:
+                    case Caste.Worker:
+                    case Caste.None:
+                    default: 
+                        return 3;
+                }
+            case Metamorphosis.Pupa:
+                switch (caste) {
+                    case Caste.Drone: return 9;
+                    case Caste.Worker: return 7;
+                    case Caste.Queen: return 5;
+                    default: return 3;
+                }
+            case Metamorphosis.Adult:
+                switch (caste) {
+                    case Caste.Drone: return 12;
+                    case Caste.Queen: return 8;
+                    case Caste.Worker: return 10;
+                    default: return 3;
+                }
+            default: return -1;
+        }
+    }
+
+    public static int GetTotalDaysForMetamorphosis(Caste caste, Metamorphosis metamorphosis) {
+        switch (metamorphosis) {
+            case Metamorphosis.Egg: return 0;
+            case Metamorphosis.Larva:
+                switch (caste) {
+                    case Caste.Drone:
+                    case Caste.Queen:
+                    case Caste.Worker:
+                    case Caste.None:
+                    default: 
+                        return 1;
+                }
+            case Metamorphosis.Pupa:
+                switch (caste) {
+                    case Caste.Drone: return 12;
+                    case Caste.Worker: return 2;
+                    case Caste.Queen: return 8;
+                    default: return 3;
+                }
+            case Metamorphosis.Adult:
+                switch (caste) {
+                    case Caste.Drone: return 2;
+                    case Caste.Queen: return 3;
+                    case Caste.Worker: return 3;
+                    default: return 3;
+                }
+            default: return -1;
+        }
+    }
+
+    public static Metamorphosis GetUpcomingMetamorphosis(Metamorphosis metamorphosis) {
+        switch (metamorphosis) {
+            case Metamorphosis.Egg: return Metamorphosis.Larva;
+            case Metamorphosis.Larva: return Metamorphosis.Pupa;
+            case Metamorphosis.Pupa: return Metamorphosis.Adult;
+            default: return Metamorphosis.Egg;
+        }
+    }
+
+    public int GetDaysUntilNextMetamorphosis() {
+        if (GetUpcomingMetamorphosis(metamorphosis) == Metamorphosis.Egg) return -1;
+        return GetTotalDaysForMetamorphosis(caste, GetUpcomingMetamorphosis(metamorphosis)) - ageDays;
+    }
+
+    public bool CanWork() {
+        return this.canWork;
+    }
+
+    public Metamorphosis Metamorphosis {
+        get => metamorphosis;
+        set => metamorphosis = value;
     }
 }
 
@@ -232,4 +390,10 @@ public enum Job {
     Nurse,
     Builder,
     Collector
+}
+public enum Metamorphosis {
+    Egg,
+    Larva,
+    Pupa,
+    Adult
 }

@@ -12,6 +12,7 @@ public class TimeManager : MonoBehaviour
     public int hour = 0;
     public int year = 0;
     public int season = 0;
+    private int _hours = 0;
     private void Start()
     {
         this.gameIsPaused = false;
@@ -63,15 +64,26 @@ public class TimeManager : MonoBehaviour
 
     public void SetNormalSpeed()
     {
-        if (this.gameIsPaused) return;
-        Time.timeScale = 1f;
+        
+        if (this.gameIsPaused) {
+            this.pausedTimeScale = 1f;
+        }
+        else {
+            Time.timeScale = 1f;
+        }
         uiManager.SetNormalSpeedButtonActive();
+        
     }
 
     public void SetHigherSpeed()
     {
-        if (this.gameIsPaused) return;
-        Time.timeScale = 2f;
+        if (this.gameIsPaused) {
+            this.pausedTimeScale = 2f;
+        }
+        else {
+            Time.timeScale = 2f;
+        }
+        
         uiManager.SetDoubleSpeedButtonActive();
     }
 
@@ -95,6 +107,14 @@ public class TimeManager : MonoBehaviour
         
         uiManager.UpdateDateTimeUI(hour, day, season, year);
     }
+
+    public void UpdateHour() {
+        this._hours++;
+    }
+
+    public int GetCurrentHoursSinceBegin() {
+        return _hours;
+    }
 }
 
 public enum Season {
@@ -102,4 +122,30 @@ public enum Season {
     Summer,
     Fall,
     Winter
+}
+public struct HexDateTime {
+    private int hour;
+    private int day;
+    private int season;
+    private int year;
+
+    public int Hour {
+        get => hour;
+        set => hour = value;
+    }
+
+    public int Day {
+        get => day;
+        set => day = value;
+    }
+
+    public int Season {
+        get => season;
+        set => season = value;
+    }
+
+    public int Year {
+        get => year;
+        set => year = value;
+    }
 }

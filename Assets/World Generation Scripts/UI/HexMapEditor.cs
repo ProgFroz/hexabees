@@ -150,8 +150,8 @@ public class HexMapEditor : MonoBehaviour {
 				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f)
 			);
 			var transform1 = cell.Unit.transform;
-			var position = transform1.position;
-			position = new Vector3(position.x, 7, position.z);
+			var position = cell.transform.position;
+			position = new Vector3(position.x, position.y, position.z);
 			transform1.position = position;
 		}
 	}

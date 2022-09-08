@@ -39,23 +39,7 @@ public class ButtonMenu : MonoBehaviour
     void Update()
     {
         if (uiManager.TimeManager.gameIsPaused) return;
-        /*if (hexTileMapGenerator.selected)
-        {
-            Bee bee = hexTileMapGenerator.selected.GetComponent<Bee>();
-            if (bee)
-            {
-                this.ToggleShowMenu(true);
-            }
-            else
-            {
-                this.ToggleShowMenu(false);
-            }
 
-        }
-        else
-        {
-            this.ToggleShowMenu(false);
-        }*/
     }
     
     public void BuildMenu()
@@ -247,9 +231,12 @@ public enum BeeAction {
     Feed,
     Cover,
     
+    // All
+    Eat,
+    Drink,
+    
     // Builder
     Mix,
     Refine,
     Evaporate
-
 }
