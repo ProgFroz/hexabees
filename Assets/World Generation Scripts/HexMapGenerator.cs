@@ -685,7 +685,7 @@ public class HexMapGenerator : MonoBehaviour {
 					cellBiome.terrain = 4;
 				}
 
-				if (cellBiome.terrain == 4 || cellBiome.terrain == 3) {
+				if (cellBiome.terrain != 1) {
 					cellBiome.plant = 0;
 				}
 				else if (cellBiome.plant < 3 && cell.HasRiver) {

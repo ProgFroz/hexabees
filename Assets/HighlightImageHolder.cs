@@ -23,15 +23,32 @@ public class HighlightImageHolder : MonoBehaviour {
     }
 
     public void SetImage(BeeAction action) {
-        image.texture = uiManager.GetAccordingTexture(action);
+        SetTexture(uiManager.GetAccordingTexture(action), action);
     }
     
     public BeeAction SetHoverImage() {
-        image.texture = uiManager.GetAccordingTexture(uiManager.currentAction);
+        SetTexture(uiManager.GetAccordingTexture(uiManager.currentAction), uiManager.currentAction);
         return uiManager.currentAction;
     }
 
     public void SetActive(bool isActive) {
         imageHolder.SetActive(isActive);
+    }
+
+    private void SetTexture(Texture texture, BeeAction action) {
+        image.texture = texture;
+
+        switch (action) {
+            case BeeAction.Cancel:
+            case BeeAction.Destroy:
+            case BeeAction.Refiner:
+            case BeeAction.Evaporator:
+            case BeeAction.Mixer:
+                image.color = uiManager.GetBlankTexturesColor();
+                break;
+            default:
+                image.color = Color.white;
+                break;
+        }
     }
 }

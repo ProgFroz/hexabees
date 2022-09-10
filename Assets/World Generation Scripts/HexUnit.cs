@@ -204,13 +204,22 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public void Die () {
-		bee.Die();
-		if (location) {
-			Grid.DecreaseVisibility(location, VisionRange);
-		}
-		location.Unit = null;
-		this.Grid.Units.Remove(this);
-		Destroy(gameObject);
+		LTSeq seq = bee.Die();
+		seq.append(LeanTween.scale(new GameObject(), Vector3.zero, 0.1f).setEaseInOutCubic().setOnComplete(() => {
+			if (location) {
+				Grid.DecreaseVisibility(location, VisionRange);
+			}
+			location.Unit = null;
+			this.Grid.Units.Remove(this);
+
+			try {
+				Destroy(gameObject);
+			}
+			catch (MissingReferenceException e) {
+				
+			}
+		}));
+		
 	}
 
 	public void Save (BinaryWriter writer) {

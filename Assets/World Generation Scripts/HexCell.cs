@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
@@ -10,6 +11,8 @@ public class HexCell : MonoBehaviour {
 	public RectTransform uiRect;
 
 	public HexGridChunk chunk;
+
+	public UIManager uiManager;
 
 	public int Index { get; set; }
 
@@ -23,11 +26,20 @@ public class HexCell : MonoBehaviour {
 	
 	public Color cellHoverColor;
 	public Gradient cellJobGradient;
-	
+
+	public List<GameObject> features = new List<GameObject>();
+	private Flower _flower;
+
 	private void Update() {
 		this.hasJob = this._assignedJob != null;
 		if (hasJob) {
-			ShowJobHighlight();
+			if (!isHovered) ShowJobHighlight();
+			else {
+				if (uiManager.currentAction == BeeAction.Cancel) {
+					DisableJobHighlight();
+					ShowHoverHighlight();
+				}
+			}
 		}
 		if (isHovered && !hasJob) ShowHoverHighlight();
 		else if (!isHovered && !hasJob) {
@@ -40,6 +52,8 @@ public class HexCell : MonoBehaviour {
 		highlight = uiRect.GetChild(0).GetComponent<Image>();
 		highlightImageHolder = uiRect.GetChild(0).GetComponent<HighlightImageHolder>();
 		highlightImageHolder.cell = this;
+
+		this.uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
 	}
 
 	public void ShowJobHighlight() {
@@ -671,10 +685,17 @@ public class HexCell : MonoBehaviour {
 	public JobOrder GetAssignedJob() {
 		return this._assignedJob;
 	}
+	
+	public Flower Flower {
+		get => _flower;
+		set => _flower = value;
+	}
 
 	public bool CanPerformJob(BeeAction action) {
 		switch (action) {
-			case BeeAction.Gather: return PlantLevel > 0;
+			case BeeAction.Gather: return PlantLevel > 0 && !IsUnderwater;
+			case BeeAction.Pollinate: return TerrainTypeIndex == 1 && PlantLevel < 1 && !IsUnderwater;
+			case BeeAction.Cancel: return _assignedJob != null;
 			default: return true;
 		}
 	}

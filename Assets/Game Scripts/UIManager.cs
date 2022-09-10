@@ -4,6 +4,7 @@ using System.Data;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
@@ -57,8 +58,11 @@ public class UIManager : MonoBehaviour {
     public Texture mixTexture;
     public Texture refineTexture;
     public Texture evaporateTexture;
+
+    public Color blankTexturesColor;
     
     private void Start() {
+        LeanTween.init(99999);
         this.currentHexMapCamera = overworldHexMapCamera.gameObject.activeSelf ? overworldHexMapCamera : hiveHexMapCamera;
         SetPauseButtonInactive();
         pauseButton.onClick.AddListener(() => timeManager.TogglePause());
@@ -89,26 +93,19 @@ public class UIManager : MonoBehaviour {
             cell = overworldHexMapCamera.grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
         }
 
-
-
         if (cell) {
-            cell.isHovered = true;
-            if (prevCell != null && prevCell != cell) {
+            cell.isHovered = !EventSystem.current.IsPointerOverGameObject();
+            
+            if (prevCell != null && prevCell != cell ) {
                 prevCell.isHovered = false;
             }
             prevCell = cell;
         }
 
-        
         if (Input.GetMouseButtonDown(0)) {
             if (currentAction != BeeAction.None && cell) {
                 if (currentAction != BeeAction.Cancel) {
-                    if (currentAction == BeeAction.Gather) {
-                        if (cell.PlantLevel > 0) {
-                            workingManager.AddJobOrder(currentAction, cell);
-                        }
-                    }
-                    else {
+                    if (cell.CanPerformJob(currentAction)) {
                         workingManager.AddJobOrder(currentAction, cell);
                     }
                 }
@@ -250,5 +247,9 @@ public class UIManager : MonoBehaviour {
         }
 
         return texture;
-    } 
+    }
+
+    public Color GetBlankTexturesColor() {
+        return blankTexturesColor;
+    }
 }

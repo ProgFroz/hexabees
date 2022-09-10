@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Unity.Jobs.LowLevel.Unsafe;
+using UnityEditorInternal;
 
 public class WorkingManager : MonoBehaviour {
     public TimeManager timeManager;
@@ -90,20 +91,50 @@ public class WorkingManager : MonoBehaviour {
         return this.activeJobs.Remove(jobOrder);
     }
 
-    public bool FinishJob(JobOrder jobOrder) {
+    public bool FinishJob(Bee bee, JobOrder jobOrder) {
         if (!activeJobs.Contains((jobOrder))) return false;
         jobOrder.AssignedBee.AssignJob(null);
         jobOrder.AssignedBee = null;
         jobOrder.Cell.AssignJob(null);
         jobOrder.Cell.DisableJobHighlight();
         jobOrder.Finished = true;
+
+        switch (jobOrder.Action) {
+            case BeeAction.Gather: FinishGather(bee, jobOrder.Cell);
+                break;
+            case BeeAction.Pollinate: FinishPollinate(bee, jobOrder.Cell);
+                break;
+            default: break;
+        }
+        
+        
         return this.activeJobs.Remove(jobOrder);
         
+    }
+
+    private void FinishPollinate(Bee bee, HexCell cell) {
+        bee.RemoveItemsFromInventory(Item.Pollen, Bee.GetRequiredPollenToPollinate());
+        cell.PlantLevel = 3;
+    }
+
+    private void FinishGather(Bee bee, HexCell cell) {
+        if (bee) {
+            Flower flower = cell.Flower;
+            int leftSpaceNectar = bee.GetSpaceForItem(Item.Nectar);
+            int leftSpacePollen = bee.GetSpaceForItem(Item.Pollen);
+
+            int receivedNectar = flower.DrainNectar(leftSpaceNectar);
+            int receivedPollen = flower.DrainPollen(leftSpacePollen);
+
+            bee.AddItemsToInventory(Item.Nectar, receivedNectar);
+            bee.AddItemsToInventory(Item.Pollen, receivedPollen);
+        }
     }
 
     private Bee FindBee(JobOrder jobOrder) {
         List<Bee> possibles = new List<Bee>();
         List<Bee> highestPriorities = new List<Bee>();
+        List<Bee> mostSuitableInventory = new List<Bee>();
 
         for (int i = 0; i < overworldGrid.Units.Count; i++) {
             HexUnit unit = overworldGrid.Units[i];
@@ -138,14 +169,45 @@ public class WorkingManager : MonoBehaviour {
             }
         }
 
-        if (highestPriorities.Count < 1) return null;
-        if (highestPriorities.Count == 1) return highestPriorities[0];
+        
 
-        return FindBeeWithSmallestDistance(highestPriorities);
+        switch (jobOrder.Action) {
+            case BeeAction.Pollinate: mostSuitableInventory = FindBeesWithInventory(highestPriorities, Item.Pollen);
+                break;
+            default:
+                mostSuitableInventory = highestPriorities;
+                break;
+        }
+
+        if (mostSuitableInventory.Count < 1) return null;
+        if (mostSuitableInventory.Count == 1) return mostSuitableInventory[0];
+        return FindBeeWithSmallestDistance(mostSuitableInventory);
     }
 
-    private Bee FindBeeWithSmallestDistance(List<Bee> highestPriorities) {
-        return highestPriorities[0];
+    private List<Bee> FindBeesWithInventory(List<Bee> bees, Item item) {
+        List<Bee> suitable = new List<Bee>();
+        switch (item) {
+            case Item.Pollen: suitable = FindBeesWithPollen(bees);
+                break;
+            default: break;
+        }
+
+        return suitable;
+    }
+
+    private List<Bee> FindBeesWithPollen(List<Bee> bees) {
+        List<Bee> suitable = new List<Bee>();
+        foreach (Bee bee in bees) {
+            if (bee.HasEnoughPollen()) {
+                suitable.Add(bee);
+            }
+        }
+
+        return suitable;
+    }
+
+    private Bee FindBeeWithSmallestDistance(List<Bee> list) {
+        return list.Count > 0 ? list[0] : null;
     }
 
     private bool CheckIfBeeCan(Bee bee, JobOrder jobOrder) {

@@ -1,7 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class HexFeatureManager : MonoBehaviour {
 
+	private TimeManager _timeManager;
 	public HexFeatureCollection[]
 		urbanCollections, farmCollections, plantCollections;
 
@@ -12,6 +15,10 @@ public class HexFeatureManager : MonoBehaviour {
 	public Transform[] special;
 
 	Transform container;
+
+	private void Start() {
+		_timeManager = GameObject.Find("TimeManager").GetComponent<TimeManager>();
+	}
 
 	public void Clear () {
 		if (container) {
@@ -59,6 +66,7 @@ public class HexFeatureManager : MonoBehaviour {
 			return;
 		}
 
+		FeatureType featureType = FeatureType.None;
 		HexHash hash = HexMetrics.SampleHashGrid(position);
 		Transform prefab = PickPrefab(
 			urbanCollections, cell.UrbanLevel, hash.a, hash.d
@@ -92,11 +100,29 @@ public class HexFeatureManager : MonoBehaviour {
 			return;
 		}
 
+		Transform tr = cell.transform.Find("Flower");
+		
+		if (tr == null) {
+			GameObject featureHolder = new GameObject("Flower");
+			featureHolder.transform.SetParent(cell.transform);
+			tr = featureHolder.transform;
+		}
+
+
+
 		Transform instance = Instantiate(prefab);
 		position.y += instance.localScale.y * 0.5f;
+		instance.localScale = Vector3.zero;
 		instance.localPosition = HexMetrics.Perturb(position);
 		instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
-		instance.SetParent(container, false);
+		instance.SetParent(tr, false);
+
+		Flower flower = tr.GetComponent<Flower>() == null ? tr.AddComponent<Flower>() : tr.GetComponent<Flower>();
+		flower.Cell = cell;
+		cell.Flower = flower;
+		flower.TimeManager = _timeManager;
+		flower.FlowerObjects.Add(instance.gameObject);
+		cell.features.Add(instance.gameObject);
 	}
 
 	public void AddSpecialFeature (HexCell cell, Vector3 position) {
@@ -285,4 +311,16 @@ public class HexFeatureManager : MonoBehaviour {
 		walls.AddQuadUnperturbed(point, v2, pointTop, v4);
 		walls.AddTriangleUnperturbed(pointTop, v3, v4);
 	}
+}
+
+public enum FeatureType {
+	None,
+	Flower,
+	Evaporator,
+	Mixer,
+	Refiner,
+	Storage,
+	Breed,
+	Royal
+	
 }

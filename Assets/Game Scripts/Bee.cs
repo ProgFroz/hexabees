@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -50,7 +51,12 @@ public class Bee : MonoBehaviour {
     private JobOrder _assignedJob = null;
 
     public Dictionary<BeeAction, PriorityValue> priorities = new Dictionary<BeeAction, PriorityValue>();
-    
+
+    [SerializeField]
+    private Dictionary<Item, int> _inventory = new Dictionary<Item, int>();
+
+    public int pollen;
+
     float _time;
     private float _interval = 1f;
     public bool doWork = false;
@@ -80,7 +86,36 @@ public class Bee : MonoBehaviour {
         hexGameUI = hexUnit.Grid.hexGameUI;
         timeManager = WorkingManager.timeManager;
         this._hourBorn = timeManager.GetCurrentHoursSinceBegin();
+        InitializeInventory();
+        
         InvokeRepeating("DrainStats", 0.0f, 1f);
+    }
+    
+    void Update() {
+        pollen = Inventory[Item.Pollen];
+        ageHours = timeManager.GetCurrentHoursSinceExistence(_hourBorn);
+        ageDays = TimeManager.ConvertHoursToDays(ageHours);
+        this.hasJob = this._assignedJob != null;
+        this.doWork = this._assignedJob != null && this._assignedJob.Cell == this.hexUnit.Location;
+        
+        
+        _time += Time.deltaTime;
+        while(_time >= _interval) {
+            Work();
+            _time -= _interval;
+        }
+
+        int daysLeft = GetDaysUntilNextMetamorphosis();
+        if (daysLeft == 0) {
+            this.UpdateMetamorphosis(GetUpcomingMetamorphosis(metamorphosis));
+        }
+    }
+
+    private void InitializeInventory() {
+        Inventory.Add(Item.Honey, 0);
+        Inventory.Add(Item.Nectar, 0);
+        Inventory.Add(Item.Wax, 0);
+        Inventory.Add(Item.Pollen, 0);
     }
 
     private void UpdatePriorities() {
@@ -128,26 +163,6 @@ public class Bee : MonoBehaviour {
 
     public void AssignJob(JobOrder jobOrder) {
         _assignedJob = jobOrder;
-    }
-
-    // Update is called once per frame
-    void Update() {
-        ageHours = timeManager.GetCurrentHoursSinceBegin() - this._hourBorn;
-        ageDays = (int) Math.Floor((decimal) (ageHours / 24));
-        this.hasJob = this._assignedJob != null;
-        this.doWork = this._assignedJob != null && this._assignedJob.Cell == this.hexUnit.Location;
-        
-        
-        _time += Time.deltaTime;
-        while(_time >= _interval) {
-            Work();
-            _time -= _interval;
-        }
-
-        int daysLeft = GetDaysUntilNextMetamorphosis();
-        if (daysLeft == 0) {
-            this.UpdateMetamorphosis(GetUpcomingMetamorphosis(metamorphosis));
-        }
     }
 
     public void UpdatePriorities(BeeAction action, PriorityValue value) {
@@ -223,10 +238,19 @@ public class Bee : MonoBehaviour {
         return str;
     }
 
-    public void Die() {
+    public LTSeq Die() {
+        LTSeq seq = LeanTween.sequence();
         if (this._assignedJob != null) {
             WorkingManager.RequeueJob(this._assignedJob);
         }
+
+        Animator animator = activeModel.GetComponent<Animator>();
+        animator.enabled = false;
+        seq.append(LeanTween.rotateZ(activeModel, 30f, 0.1f).setEaseInOutCubic());
+        seq.append(LeanTween.rotateZ(activeModel, -30f, 0.1f).setEaseInOutCubic());
+        seq.append(LeanTween.moveY(activeModel, hexUnit ? hexUnit.Location.transform.position.y : (transform.position.y - 9f), 0.5f).setEaseInOutExpo());
+        seq.append(LeanTween.scale(activeModel, Vector3.zero, 0.5f).setEaseInOutCubic());
+        return seq;
     }
 
     public void Travel(HexCell destination) {
@@ -239,7 +263,7 @@ public class Bee : MonoBehaviour {
     }
 
     public void FinishJob() {
-        this.WorkingManager.FinishJob(this._assignedJob);
+        this.WorkingManager.FinishJob(this, this._assignedJob);
     }
     
     private void Work() {
@@ -335,12 +359,12 @@ public class Bee : MonoBehaviour {
                     case Caste.Worker:
                     case Caste.None:
                     default: 
-                        return 1;
+                        return 0;
                 }
             case Metamorphosis.Pupa:
                 switch (caste) {
                     case Caste.Drone: return 12;
-                    case Caste.Worker: return 2;
+                    case Caste.Worker: return 0;
                     case Caste.Queen: return 8;
                     default: return 3;
                 }
@@ -348,7 +372,7 @@ public class Bee : MonoBehaviour {
                 switch (caste) {
                     case Caste.Drone: return 2;
                     case Caste.Queen: return 3;
-                    case Caste.Worker: return 3;
+                    case Caste.Worker: return 1;
                     default: return 3;
                 }
             default: return -1;
@@ -373,9 +397,53 @@ public class Bee : MonoBehaviour {
         return this.canWork;
     }
 
+    public static int GetRequiredPollenToPollinate() {
+        return 30;
+    }
+    public bool HasEnoughPollen() {
+        return Inventory[Item.Pollen] >= GetRequiredPollenToPollinate();
+    }
+
     public Metamorphosis Metamorphosis {
         get => metamorphosis;
         set => metamorphosis = value;
+    }
+
+    public Dictionary<Item, int> Inventory {
+        get => _inventory;
+        set => _inventory = value;
+    }
+
+    public static int GetMaximumItemsPerItem(Item item) {
+        switch (item) {
+            case Item.Honey: return 10;
+            case Item.Wax: return 10;
+            case Item.Nectar: return 10;
+            case Item.Pollen: return 30;
+            default: return -1;
+        }
+    }
+
+    public int AddItemsToInventory(Item item, int amount) {
+        int max = GetMaximumItemsPerItem(item);
+        int current = Inventory[item];
+        int leftSpace = max - current;
+        int leftover = amount - leftSpace;
+        leftover = leftover < 0 ? 0 : leftover;
+
+        Inventory[item] += ((current + amount) > max) ? (amount - leftover) : amount;
+        return leftover;
+    }
+
+    public int RemoveItemsFromInventory(Item item, int desired) {
+        int current = Inventory[item];
+        int newAmount = (current - desired < 0) ? 0 : current - desired;
+        Inventory[item] = newAmount;
+        return current - newAmount;
+    }
+
+    public int GetSpaceForItem(Item item) {
+        return GetMaximumItemsPerItem(item) - Inventory[item];
     }
 }
 
@@ -396,4 +464,11 @@ public enum Metamorphosis {
     Larva,
     Pupa,
     Adult
+}
+
+public enum Item {
+    Nectar,
+    Honey,
+    Pollen,
+    Wax
 }

@@ -116,6 +116,7 @@ public class HexMapEditor : MonoBehaviour {
 	void Awake () {
 		terrainMaterial.DisableKeyword("GRID_ON");
 		Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
+		SetTerrainTypeIndex(-1);
 		SetEditMode(true);
 	}
 

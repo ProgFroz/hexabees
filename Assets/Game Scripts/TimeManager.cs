@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -114,6 +115,14 @@ public class TimeManager : MonoBehaviour
 
     public int GetCurrentHoursSinceBegin() {
         return _hours;
+    }
+    
+    public int GetCurrentHoursSinceExistence(int creationHour) {
+        return _hours - creationHour;
+    }
+    
+    public static int ConvertHoursToDays(int hours) {
+        return (int) Math.Floor((decimal) (hours / 24));
     }
 }
 
