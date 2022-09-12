@@ -60,6 +60,26 @@ public class UIManager : MonoBehaviour {
     public Texture evaporateTexture;
 
     public Color blankTexturesColor;
+
+    public Texture workTraitTexture;
+    public Texture createTraitTexture;
+    public Texture gatherTraitTexture;
+    public Texture feedTraitTexture;
+    public Texture breedTraitTexture;
+    public Texture lifeTraitTexture;
+    public Texture waterTraitTexture;
+    public Texture foodTraitTexture;
+    public Texture immunityTraitTexture;
+    public Texture shinyTraitTexture;
+
+    public Color positiveColor;
+    public Color negativeColor;
+    public Color neutralColor;
+
+    [SerializeField] private BeeWindow beeWindow;
+
+    [SerializeField] private GameObject selectedGameObject;
+    [SerializeField] private Bee selectedBee;
     
     private void Start() {
         LeanTween.init(99999);
@@ -94,6 +114,7 @@ public class UIManager : MonoBehaviour {
         }
 
         if (cell) {
+            
             cell.isHovered = !EventSystem.current.IsPointerOverGameObject();
             
             if (prevCell != null && prevCell != cell ) {
@@ -113,10 +134,34 @@ public class UIManager : MonoBehaviour {
                     workingManager.CancelJob(cell);
                 }
             }
+            else {
+                if (cell.Unit == null) {
+                    UpdateSelectedGameObject(cell.gameObject);
+                }
+            }
+
+            // if (currentAction == BeeAction.None) {
+            //     GameObject gameObject = EventSystem.current.currentSelectedGameObject;
+            //     if (gameObject) {
+            //         Bee bee = gameObject.GetComponent<Bee>();
+            //         if (bee) {
+            //             Debug.Log(bee.DisplayName);
+            //         }
+            //     }
+            // }
             
         }
     }
-
+    public void UpdateSelectedGameObject(GameObject gameObject) {
+        this.selectedGameObject = gameObject;
+        if (gameObject) {
+            Bee bee = gameObject.GetComponent<Bee>();
+            this.UpdateSelectedBee(bee ? bee : null);
+        }
+    }
+    public void UpdateSelectedBee(Bee bee) {
+        this.selectedBee = bee;
+    }
     private void SwitchWorlds(HexMapType type) {
         SwitchCameras();
         SwitchButtonImages(type);
@@ -248,8 +293,83 @@ public class UIManager : MonoBehaviour {
 
         return texture;
     }
+    
+    public Texture GetAccordingTexture(Trait trait) {
+        switch (trait) {
+            case Trait.WorkPos:
+            case Trait.WorkNeg:
+                return workTraitTexture;
+            case Trait.GatherPos:
+            case Trait.GatherNeg:
+                return gatherTraitTexture;
+            case Trait.CreatePos:
+            case Trait.CreateNeg:
+                return createTraitTexture;
+            case Trait.FeedPos:
+            case Trait.FeedNeg:
+                return feedTraitTexture;
+            case Trait.BreedNeg:
+            case Trait.BreedPos:
+                return breedTraitTexture;
+            case Trait.LifePos:
+            case Trait.LifeNeg:
+                return lifeTraitTexture;
+            case Trait.WaterPos:
+            case Trait.WaterNeg:
+                return waterTraitTexture;
+            case Trait.FoodNeg:
+            case Trait.FoodPos:
+                return foodTraitTexture;
+            case Trait.Immunity:
+                return immunityTraitTexture;
+            case Trait.Shiny:
+                return shinyTraitTexture;
+            
+            default: return gatherTexture;
+        }
+    }
+    
+    public Color GetAccordingColorPositiveNegative(Trait trait) {
+        switch (trait) {
+            case Trait.WorkPos: 
+            case Trait.GatherPos: 
+            case Trait.CreatePos: 
+            case Trait.FeedPos: 
+            case Trait.BreedPos: 
+            case Trait.LifePos: 
+            case Trait.WaterPos: 
+            case Trait.FoodPos:
+                return positiveColor;
+            case Trait.WorkNeg:
+            case Trait.GatherNeg:
+            case Trait.CreateNeg:
+            case Trait.FeedNeg:
+            case Trait.BreedNeg:
+            case Trait.LifeNeg:
+            case Trait.WaterNeg:
+            case Trait.FoodNeg:
+                return negativeColor;
+            default:
+                return neutralColor;
+        }
+    }
+
+    public BeeWindow BeeWindow {
+        get => beeWindow;
+        set => beeWindow = value;
+    }
+
+    public Bee SelectedBee {
+        get => selectedBee;
+        set => selectedBee = value;
+    }
 
     public Color GetBlankTexturesColor() {
         return blankTexturesColor;
+    }
+
+    public GameObject SelectedGameObject {
+        get => selectedGameObject;
+        set => selectedGameObject = value;
     }
 }

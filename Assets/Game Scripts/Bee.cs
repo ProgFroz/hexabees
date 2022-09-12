@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
+using RandomGenerator.Scripts.ModernNameGenerators;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Random = System.Random;
 
 [RequireComponent(typeof(HexUnit))]
 public class Bee : MonoBehaviour {
@@ -68,18 +72,29 @@ public class Bee : MonoBehaviour {
     [SerializeField] private GameObject queenModel;
     [SerializeField] private GameObject droneModel;
     [SerializeField] private GameObject eggModel;
+    [SerializeField] private GameObject larvaModel;
+    [SerializeField] private GameObject pupaModel;
+
+    [SerializeField] private int lifespan;
 
     public Dictionary<BeeAction, PriorityValue> Priorities {
         get => priorities;
         set => priorities = value;
     }
 
+    [SerializeField] private string displayName;
+    [SerializeField] private Trait trait1;
+    [SerializeField] private Trait trait2;
+    [SerializeField] private Trait trait3;
+    
+    private SimplePersonNameGenerator _generator = new SimplePersonNameGenerator();
+
+    private Dictionary<Trait, float> chancesByTrait = new Dictionary<Trait, float>();
+
     void Start() {
         _time = 0f;
-        
         GenerateStats();
-        caste = Caste.Worker;
-        job = Job.Collector;
+        GenerateCaste();
         UpdateMetamorphosis(Metamorphosis.Egg);
         UpdatePriorities();
         WorkingManager = hexUnit.Grid.workingManager;
@@ -87,10 +102,71 @@ public class Bee : MonoBehaviour {
         timeManager = WorkingManager.timeManager;
         this._hourBorn = timeManager.GetCurrentHoursSinceBegin();
         InitializeInventory();
-        
+        GiveName();
+        GenerateTraitChances();
+        GenerateTraits();
+        GenerateLifespan();
         InvokeRepeating("DrainStats", 0.0f, 1f);
     }
-    
+
+    private void GenerateCaste() {
+        List<Caste> castes = new List<Caste>();
+        castes.Add(Caste.Drone);
+        castes.Add(Caste.Queen);
+        castes.Add(Caste.Worker);
+
+        Caste = castes[GenerateInt(0, castes.Count)];
+        if (Caste == Caste.Worker) this.job = Job.Collector;
+    }
+
+    private void GenerateLifespan() {
+        switch (Caste) {
+            case Caste.Drone: this.lifespan = GenerateInt(14, 28);
+                break;
+            case Caste.Queen: this.lifespan = GenerateInt(93, 155);
+                break;
+            case Caste.Worker:
+                if (this.timeManager.season == 2) {
+                    this.lifespan = GenerateInt(50, 62);
+                }
+                else {
+                    this.lifespan = GenerateInt(31, 51);
+                }
+                break;
+            default: this.lifespan = 1;
+                break;
+        }
+    }
+
+    private void GenerateTraitChances() {
+        chancesByTrait.Add(Trait.Immunity, 0.02f);
+        chancesByTrait.Add(Trait.Shiny, 0.02f);
+        
+        chancesByTrait.Add(Trait.BreedNeg, 0.06f);
+        chancesByTrait.Add(Trait.BreedPos, 0.06f);
+        
+        chancesByTrait.Add(Trait.CreateNeg, 0.06f);
+        chancesByTrait.Add(Trait.CreatePos, 0.06f);
+        
+        chancesByTrait.Add(Trait.FeedNeg, 0.06f);
+        chancesByTrait.Add(Trait.FeedPos, 0.06f);
+
+        chancesByTrait.Add(Trait.GatherNeg, 0.06f);
+        chancesByTrait.Add(Trait.GatherPos, 0.06f);
+        
+        chancesByTrait.Add(Trait.LifeNeg, 0.06f);
+        chancesByTrait.Add(Trait.LifePos, 0.06f);
+        
+        chancesByTrait.Add(Trait.WaterNeg, 0.06f);
+        chancesByTrait.Add(Trait.WaterPos, 0.06f);
+        
+        chancesByTrait.Add(Trait.WorkNeg, 0.06f);
+        chancesByTrait.Add(Trait.WorkPos, 0.06f);
+        
+        chancesByTrait.Add(Trait.FoodNeg, 0.06f);
+        chancesByTrait.Add(Trait.FoodPos, 0.06f);
+    }
+
     void Update() {
         pollen = Inventory[Item.Pollen];
         ageHours = timeManager.GetCurrentHoursSinceExistence(_hourBorn);
@@ -109,6 +185,12 @@ public class Bee : MonoBehaviour {
         if (daysLeft == 0) {
             this.UpdateMetamorphosis(GetUpcomingMetamorphosis(metamorphosis));
         }
+
+        CheckMaxLifespan();
+    }
+
+    private void CheckMaxLifespan() {
+        if (this.ageDays > lifespan) Die();
     }
 
     private void InitializeInventory() {
@@ -298,18 +380,27 @@ public class Bee : MonoBehaviour {
                 }
                 break;
             case Metamorphosis.Egg:
+                Debug.Log("EGG");
                 activeModel = eggModel;
                 break;
             case Metamorphosis.Larva:
+                Debug.Log("LARVA");
+                activeModel = larvaModel;
+                break;
             case Metamorphosis.Pupa:
-                activeModel = eggModel;
+                Debug.Log("PUPA");
+                activeModel = pupaModel;
                 break;
         }
 
         if (activeModel != prevModel) {
             LeanTween.scale(gameObject, Vector3.zero, 1f).setOnComplete(() => {
                 prevModel.SetActive(false);
+                Debug.Log("SET INACTIVE " + prevModel);
+
                 activeModel.SetActive(true);
+                Debug.Log("SET ACTIVE " + activeModel);
+
                 LeanTween.scale(gameObject, Vector3.one, 1f).setOnComplete(() => {
                     canWork = true;
                 }).setEaseInOutCubic();
@@ -359,20 +450,20 @@ public class Bee : MonoBehaviour {
                     case Caste.Worker:
                     case Caste.None:
                     default: 
-                        return 0;
+                        return 1;
                 }
             case Metamorphosis.Pupa:
                 switch (caste) {
-                    case Caste.Drone: return 12;
-                    case Caste.Worker: return 0;
-                    case Caste.Queen: return 8;
+                    case Caste.Drone: return 2;
+                    case Caste.Worker: return 2;
+                    case Caste.Queen: return 2;
                     default: return 3;
                 }
             case Metamorphosis.Adult:
                 switch (caste) {
-                    case Caste.Drone: return 2;
+                    case Caste.Drone: return 3;
                     case Caste.Queen: return 3;
-                    case Caste.Worker: return 1;
+                    case Caste.Worker: return 3;
                     default: return 3;
                 }
             default: return -1;
@@ -445,6 +536,101 @@ public class Bee : MonoBehaviour {
     public int GetSpaceForItem(Item item) {
         return GetMaximumItemsPerItem(item) - Inventory[item];
     }
+
+    public void GiveName() {
+        Random random = new System.Random();
+        string n = _generator.Generate(random);
+        DisplayName = ToCapsAllWords(n);
+    }
+
+    public static string ToCapsAllWords(string name)
+    {
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+        return textInfo.ToTitleCase(name);
+    }
+    
+    public string DisplayName {
+        get => displayName;
+        set => displayName = value;
+    }
+
+    public Trait Trait1 {
+        get => trait1;
+        set => trait1 = value;
+    }
+
+    public Trait Trait2 {
+        get => trait2;
+        set => trait2 = value;
+    }
+
+    public Trait Trait3 {
+        get => trait3;
+        set => trait3 = value;
+    }
+
+    private void OnMouseDown() {
+        timeManager.uiManager.UpdateSelectedGameObject(gameObject);
+    }
+
+    public string GetCasteAsString() {
+        switch (Caste) {
+            case Caste.Drone: return "Drone";
+            case Caste.Queen: return "Queen";
+            case Caste.Worker: return "Worker";
+            default: return "None";
+        }
+    }
+
+    public string GetAgeAsString() {
+        return ageDays + " Days";
+    }
+
+    public string GetJobAsString() {
+        switch (Job) {
+            case Job.Builder: return "Builder";
+            case Job.Nurse: return "Nurse";
+            case Job.Collector: return "Collector";
+            default: return "None";
+        }
+    }
+
+    public string GetTaskAsString() {
+        if (GetAssignedJob() == null) return "None";
+        switch (GetAssignedJob().Action) {
+            case BeeAction.Gather: return "Gathering..";
+            case BeeAction.Pollinate: return "Pollinating..";
+            default: return "Doing Something!";
+        }
+    }
+
+    public float GetTraitChance(Trait trait) {
+        return chancesByTrait[trait];
+    }
+
+    private void GenerateTraits() {
+        List<Trait> traitPool = chancesByTrait.Keys.ToList();
+        
+        trait1 = traitPool[GenerateInt(0, traitPool.Count)];
+        traitPool.Remove(trait1);
+        
+        trait2 = traitPool[GenerateInt(0, traitPool.Count)];
+        traitPool.Remove(trait1);
+        
+        trait3 = traitPool[GenerateInt(0, traitPool.Count)];
+        traitPool.Remove(trait1);
+    }
+    
+    public static float GenerateFloat(int min, int max)
+    {
+        return UnityEngine.Random.Range(min, max);
+    }
+    
+    public static int GenerateInt(int min, int max)
+    {
+        return (int)GenerateFloat(min, max);
+    }
+
 }
 
 public enum Caste {
@@ -472,3 +658,33 @@ public enum Item {
     Pollen,
     Wax
 }
+
+public enum Trait {
+    WorkPos,
+    WorkNeg,
+    
+    GatherPos,
+    GatherNeg,
+    
+    CreatePos,
+    CreateNeg,
+    
+    FeedPos,
+    FeedNeg,
+    
+    BreedPos,
+    BreedNeg,
+    
+    LifePos,
+    LifeNeg,
+    
+    WaterPos,
+    WaterNeg,
+    
+    FoodPos,
+    FoodNeg,
+    
+    Immunity,
+    Shiny
+}
+

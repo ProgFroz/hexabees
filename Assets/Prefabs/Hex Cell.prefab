@@ -48,6 +48,7 @@ MonoBehaviour:
     z: 0
   uiRect: {fileID: 0}
   chunk: {fileID: 0}
+  uiManager: {fileID: 0}
   hasJob: 0
   isHovered: 0
   cellHoverColor: {r: 0.46666667, g: 0.54901963, b: 0.6392157, a: 0.5019608}
@@ -80,6 +81,7 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
+  features: []
   terrainTypeIndex: 0
   neighbors:
   - {fileID: 0}
