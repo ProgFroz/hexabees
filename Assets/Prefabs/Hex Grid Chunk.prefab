@@ -45,14 +45,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   urbanCollections:
   - prefabs:
-    - {fileID: 4000011812086372, guid: 21b1020286582424ab6d62085ed5ee87, type: 3}
-    - {fileID: 4000011812086372, guid: 5d26578fd32c84d1ab4d755ab7f23577, type: 3}
+    - {fileID: 4859018097767518, guid: a19f2e49529f1ef4d903f3b663ce7893, type: 3}
+    - {fileID: 4428525224070040, guid: fe8147825b813cf46b4ef685a3ea56a8, type: 3}
   - prefabs:
-    - {fileID: 4000013436407900, guid: 89adbf41f320f4141964bfa388ba2865, type: 3}
-    - {fileID: 4000013436407900, guid: 2fad1b4af64d84c8e810f040299dec1e, type: 3}
+    - {fileID: 4428525224070040, guid: fe8147825b813cf46b4ef685a3ea56a8, type: 3}
+    - {fileID: 4989679614359530, guid: bad3ddcb570876641a79193c07d20684, type: 3}
   - prefabs:
-    - {fileID: 4000013997932258, guid: bca46d0c670c447a0a5c7208498000ab, type: 3}
-    - {fileID: 4000013997932258, guid: 4c4b904516a814dc7b4433a49713c96f, type: 3}
+    - {fileID: 4196735912448918, guid: dafad5d52cd284f4b8229a896f9a966f, type: 3}
+    - {fileID: 4955220986018928, guid: cee0719eaa611da43905af2904d1904c, type: 3}
   farmCollections:
   - prefabs:
     - {fileID: 402022605828718878, guid: f5c92647979d4624db8d464c7d7e317b, type: 3}
@@ -80,6 +80,10 @@ MonoBehaviour:
   - {fileID: 4000013750885840, guid: f2967fed6444e43559e32916c2465d27, type: 3}
   - {fileID: 4000011263270592, guid: cb7be9a74fd6e4cbdb5be2ac7319e699, type: 3}
   - {fileID: 4000012893891830, guid: cc90e6fbc542a40c080d2c64da7d26ed, type: 3}
+  springMaterial: {fileID: 2100000, guid: e2d75b53cde65bb418ea5f4e87468189, type: 2}
+  summerMaterial: {fileID: 2100000, guid: f717718d04aa0e74f81e601a75507faa, type: 2}
+  fallMaterial: {fileID: 2100000, guid: 61c3662a5606f6a4f8dbb613cb348f7f, type: 2}
+  winterMaterial: {fileID: 2100000, guid: 239f8445e474ae346800ba50c85a4f90, type: 2}
 --- !u!1 &1000010636493760
 GameObject:
   m_ObjectHideFlags: 0

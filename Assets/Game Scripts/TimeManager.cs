@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.UI;
 
 public class TimeManager : MonoBehaviour
@@ -14,6 +16,10 @@ public class TimeManager : MonoBehaviour
     public int year = 0;
     public int season = 0;
     private int _hours = 0;
+
+    private int _prevSeason = -1;
+    [SerializeField]
+    private PostProcessVolume postProcessVolume;
     private void Start()
     {
         this.gameIsPaused = false;
@@ -38,6 +44,23 @@ public class TimeManager : MonoBehaviour
         {
             SetHigherSpeed();
         }
+        
+        // if (_prevSeason != season) {
+        //     ColorGrading colorGrading = postProcessVolume.profile.GetComponent<ColorGrading>();
+        //     switch (season) {
+        //         case 0: colorGrading.temperature = new FloatParameter { value = 5f };
+        //             break;
+        //         case 1: colorGrading.temperature = new FloatParameter { value = 7f };
+        //             break;
+        //         case 2: colorGrading.temperature = new FloatParameter { value = 5f };
+        //             break;
+        //         case 3: colorGrading.temperature = new FloatParameter { value = 3f };
+        //             break;
+        //         default: break;
+        //     }
+        // }
+
+        _prevSeason = season;
     }
 
     public void PauseGame()

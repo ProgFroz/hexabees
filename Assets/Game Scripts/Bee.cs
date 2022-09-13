@@ -116,7 +116,7 @@ public class Bee : MonoBehaviour {
         castes.Add(Caste.Worker);
 
         Caste = castes[GenerateInt(0, castes.Count)];
-        if (Caste == Caste.Worker) this.job = Job.Collector;
+        if (Caste == Caste.Worker) this.job = Job.Builder;
     }
 
     private void GenerateLifespan() {
@@ -198,6 +198,7 @@ public class Bee : MonoBehaviour {
         Inventory.Add(Item.Nectar, 0);
         Inventory.Add(Item.Wax, 0);
         Inventory.Add(Item.Pollen, 0);
+        Inventory.Add(Item.RoyalJelly, 0);
     }
 
     private void UpdatePriorities() {
@@ -327,11 +328,15 @@ public class Bee : MonoBehaviour {
         }
 
         Animator animator = activeModel.GetComponent<Animator>();
-        animator.enabled = false;
-        seq.append(LeanTween.rotateZ(activeModel, 30f, 0.1f).setEaseInOutCubic());
-        seq.append(LeanTween.rotateZ(activeModel, -30f, 0.1f).setEaseInOutCubic());
-        seq.append(LeanTween.moveY(activeModel, hexUnit ? hexUnit.Location.transform.position.y : (transform.position.y - 9f), 0.5f).setEaseInOutExpo());
-        seq.append(LeanTween.scale(activeModel, Vector3.zero, 0.5f).setEaseInOutCubic());
+        if (animator) {
+            animator.enabled = false;
+            seq.append(LeanTween.rotateZ(activeModel, 30f, 0.1f).setEaseInOutCubic());
+            seq.append(LeanTween.rotateZ(activeModel, -30f, 0.1f).setEaseInOutCubic());
+            seq.append(LeanTween.moveY(activeModel, hexUnit ? hexUnit.Location.transform.position.y : (transform.position.y - 9f), 0.5f).setEaseInOutExpo());
+            seq.append(LeanTween.scale(activeModel, Vector3.zero, 0.5f).setEaseInOutCubic());
+        }
+       
+        
         return seq;
     }
 
@@ -380,15 +385,12 @@ public class Bee : MonoBehaviour {
                 }
                 break;
             case Metamorphosis.Egg:
-                Debug.Log("EGG");
                 activeModel = eggModel;
                 break;
             case Metamorphosis.Larva:
-                Debug.Log("LARVA");
                 activeModel = larvaModel;
                 break;
             case Metamorphosis.Pupa:
-                Debug.Log("PUPA");
                 activeModel = pupaModel;
                 break;
         }
@@ -396,13 +398,13 @@ public class Bee : MonoBehaviour {
         if (activeModel != prevModel) {
             LeanTween.scale(gameObject, Vector3.zero, 1f).setOnComplete(() => {
                 prevModel.SetActive(false);
-                Debug.Log("SET INACTIVE " + prevModel);
 
                 activeModel.SetActive(true);
-                Debug.Log("SET ACTIVE " + activeModel);
 
                 LeanTween.scale(gameObject, Vector3.one, 1f).setOnComplete(() => {
-                    canWork = true;
+                    if (metamorphosis == Metamorphosis.Adult) {
+                        canWork = true;
+                    }
                 }).setEaseInOutCubic();
             }).setEaseInOutCubic();
         }
@@ -511,6 +513,7 @@ public class Bee : MonoBehaviour {
             case Item.Wax: return 10;
             case Item.Nectar: return 10;
             case Item.Pollen: return 30;
+            case Item.RoyalJelly: return 30;
             default: return -1;
         }
     }
@@ -621,6 +624,11 @@ public class Bee : MonoBehaviour {
         traitPool.Remove(trait1);
     }
     
+    public static bool GenerateBool(float chance) {
+        if (chance > 1) return true;
+        return GenerateInt(0, 100) < (chance * 100);
+    }
+    
     public static float GenerateFloat(int min, int max)
     {
         return UnityEngine.Random.Range(min, max);
@@ -656,7 +664,8 @@ public enum Item {
     Nectar,
     Honey,
     Pollen,
-    Wax
+    Wax,
+    RoyalJelly
 }
 
 public enum Trait {

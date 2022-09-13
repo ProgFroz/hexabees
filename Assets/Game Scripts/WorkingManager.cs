@@ -104,12 +104,18 @@ public class WorkingManager : MonoBehaviour {
                 break;
             case BeeAction.Pollinate: FinishPollinate(bee, jobOrder.Cell);
                 break;
+            case BeeAction.Storage: FinishStorage(bee, jobOrder.Cell);
+                break;
             default: break;
         }
         
         
         return this.activeJobs.Remove(jobOrder);
         
+    }
+
+    private void FinishStorage(Bee bee, HexCell cell) {
+        cell.SpecialIndex = 1;
     }
 
     private void FinishPollinate(Bee bee, HexCell cell) {

@@ -23,6 +23,7 @@ public class BeeWindow : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI pollenText;
     [SerializeField] private TextMeshProUGUI waxText;
     [SerializeField] private TextMeshProUGUI honeyText;
+    [SerializeField] private TextMeshProUGUI royalJellyText;
     
     [SerializeField] private TextMeshProUGUI taskText;
     
@@ -69,6 +70,7 @@ public class BeeWindow : MonoBehaviour {
         pollenText.text = bee.Inventory[Item.Pollen].ToString();
         waxText.text = bee.Inventory[Item.Wax].ToString();
         honeyText.text = bee.Inventory[Item.Honey].ToString();
+        royalJellyText.text = bee.Inventory[Item.RoyalJelly].ToString();
 
         taskText.text = bee.GetTaskAsString();
 

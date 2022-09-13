@@ -16,6 +16,11 @@ public class HexFeatureManager : MonoBehaviour {
 
 	Transform container;
 
+	public Material springMaterial;
+	public Material summerMaterial;
+	public Material fallMaterial;
+	public Material winterMaterial;
+
 	private void Start() {
 		_timeManager = GameObject.Find("TimeManager").GetComponent<TimeManager>();
 	}
@@ -100,10 +105,11 @@ public class HexFeatureManager : MonoBehaviour {
 			return;
 		}
 
-		Transform tr = cell.transform.Find("Flower");
+		string holderName = FindHolderName(cell);
+		Transform tr = cell.transform.Find(holderName);
 		
 		if (tr == null) {
-			GameObject featureHolder = new GameObject("Flower");
+			GameObject featureHolder = new GameObject(holderName);
 			featureHolder.transform.SetParent(cell.transform);
 			tr = featureHolder.transform;
 		}
@@ -112,17 +118,41 @@ public class HexFeatureManager : MonoBehaviour {
 
 		Transform instance = Instantiate(prefab);
 		position.y += instance.localScale.y * 0.5f;
-		instance.localScale = Vector3.zero;
 		instance.localPosition = HexMetrics.Perturb(position);
 		instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
 		instance.SetParent(tr, false);
 
-		Flower flower = tr.GetComponent<Flower>() == null ? tr.AddComponent<Flower>() : tr.GetComponent<Flower>();
-		flower.Cell = cell;
-		cell.Flower = flower;
-		flower.TimeManager = _timeManager;
-		flower.FlowerObjects.Add(instance.gameObject);
+		if (cell.PlantLevel > 0) {
+			instance.localScale = Vector3.zero;
+			Flower flower = tr.GetComponent<Flower>() == null ? tr.AddComponent<Flower>() : tr.GetComponent<Flower>();
+			flower.Cell = cell;
+			cell.Flower = flower;
+			flower.TimeManager = _timeManager;
+			flower.FlowerObjects.Add(instance.gameObject);
+		}
+		else if (cell.UrbanLevel > 0) {
+			Tree tree = tr.GetComponent<Tree>() == null ? tr.AddComponent<Tree>() : tr.GetComponent<Tree>();
+			tree.Cell = cell;
+			cell.Tree = tree;
+			tree.TimeManager = _timeManager;
+			tree.TreeObjects.Add(instance.gameObject);
+			tree.springMaterial = springMaterial;
+			tree.summerMaterial = summerMaterial;
+			tree.fallMaterial = fallMaterial;
+			tree.winterMaterial = winterMaterial;
+		}
 		cell.features.Add(instance.gameObject);
+	}
+
+	private string FindHolderName(HexCell cell) {
+		if (cell.PlantLevel > 0) {
+			return "Flower";
+		}
+		if (cell.UrbanLevel > 0) {
+			return "Tree";
+		}
+
+		return "Basic";
 	}
 
 	public void AddSpecialFeature (HexCell cell, Vector3 position) {

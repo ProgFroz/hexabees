@@ -692,8 +692,18 @@ public class HexMapGenerator : MonoBehaviour {
 					cellBiome.plant += 1;
 				}
 
+				
+
 				cell.TerrainTypeIndex = cellBiome.terrain;
 				cell.PlantLevel = cellBiome.plant;
+				
+				bool isForestInsteadOfPlants = Bee.GenerateBool(0.3f);
+				if (isForestInsteadOfPlants) {
+					if (cell.PlantLevel > 0) {
+						cell.PlantLevel = 0;
+						cell.UrbanLevel = Bee.GenerateInt(1, 4);
+					}
+				}
 			}
 			else {
 				int terrain;

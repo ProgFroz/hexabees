@@ -28,10 +28,10 @@ public class HexGameUI : MonoBehaviour {
 			}
 			else if (selectedUnit) {
 				if (Input.GetMouseButtonDown(1)) {
-					DoMove();
+					// DoMove();
 				}
 				else {
-					DoPathfinding();
+					// DoPathfinding();
 				}
 			}
 		}
