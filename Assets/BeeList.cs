@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BeeList : MonoBehaviour {
-    public UIManager uiManager;
-
     public Button beeListButton;
 
     public TextMeshProUGUI workerAmountText;
@@ -22,7 +20,7 @@ public class BeeList : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update()
+    void Update() 
     {
         
     }

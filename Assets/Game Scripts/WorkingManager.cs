@@ -8,6 +8,7 @@ using UnityEditorInternal;
 
 public class WorkingManager : MonoBehaviour {
     public TimeManager timeManager;
+    public StorageManager storageManager;
     public HexGrid overworldGrid;
     public HexGrid hiveGrid;
     public List<JobOrder> jobQueue = new List<JobOrder>();
@@ -30,16 +31,29 @@ public class WorkingManager : MonoBehaviour {
         hexCell.ShowJobHighlight();
         return jobOrder;
     }
+    
+    public JobOrder AddJobOrder(Bee bee, BeeAction action, HexCell hexCell) {
+        JobOrder jobOrder = new JobOrder();
+        jobOrder.Action = action;
+        jobOrder.AssignedBee = bee;
+        jobOrder.Finished = false;
+        jobOrder.MapType = hexCell.MapType;
+        jobOrder.Cell = hexCell;
+        
+        jobQueue.Add(jobOrder);
+        hexCell.AssignJob(jobOrder);
+        hexCell.ShowJobHighlight();
+        return jobOrder;
+    }
 
     private void Update() {
         AssignJobs();
-        
     }
 
     private void AssignJobs() {
         for (int i = 0; i < jobQueue.Count; i++) {
             JobOrder jobOrder = jobQueue[i];
-            Bee bee = FindBee(jobOrder);
+            Bee bee = jobOrder.AssignedBee == null ? FindBee(jobOrder) : jobOrder.AssignedBee;
             if (bee) {
                 jobOrder.AssignedBee = bee;
                 bee.AssignJob(jobOrder);
@@ -115,7 +129,8 @@ public class WorkingManager : MonoBehaviour {
     }
 
     private void FinishStorage(Bee bee, HexCell cell) {
-        cell.SpecialIndex = 1;
+        // cell.SpecialIndex = 1;
+        cell.FarmLevel = Bee.GenerateInt(2, 4);
     }
 
     private void FinishPollinate(Bee bee, HexCell cell) {
@@ -134,6 +149,13 @@ public class WorkingManager : MonoBehaviour {
 
             bee.AddItemsToInventory(Item.Nectar, receivedNectar);
             bee.AddItemsToInventory(Item.Pollen, receivedPollen);
+
+            if (bee.CheckIfInventoryFull(Item.Nectar)) {
+                AddStoreTask(bee, Item.Nectar, bee.Inventory[Item.Nectar]);
+            }
+            if (bee.CheckIfInventoryFull(Item.Pollen)) {
+                AddStoreTask(bee, Item.Pollen, bee.Inventory[Item.Pollen]);
+            }
         }
     }
 
@@ -221,7 +243,13 @@ public class WorkingManager : MonoBehaviour {
         PriorityValue value = bee.Priorities[jobOrder.Action];
         return (value != PriorityValue.Cant && value != PriorityValue.Wont) && bee.GetAssignedJob() == null && bee.CanWork();
     }
-    
+
+    private void AddStoreTask(Bee bee, Item item, int amount) {
+        Storage storage = storageManager.FindClosestStorage(bee, item, amount);
+        if (storage) {
+            AddJobOrder(bee, BeeAction.Store, storage.Cell);
+        }
+    }
     
 }
 

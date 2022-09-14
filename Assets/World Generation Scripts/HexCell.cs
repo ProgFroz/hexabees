@@ -30,6 +30,7 @@ public class HexCell : MonoBehaviour {
 	public List<GameObject> features = new List<GameObject>();
 	private Flower _flower;
 	private Tree _tree;
+	private Storage _storage;
 
 	private void Update() {
 		this.hasJob = this._assignedJob != null;
@@ -695,6 +696,11 @@ public class HexCell : MonoBehaviour {
 	public Tree Tree {
 		get => _tree;
 		set => _tree = value;
+	}
+
+	public Storage Storage {
+		get => _storage;
+		set => _storage = value;
 	}
 
 	public bool CanPerformJob(BeeAction action) {

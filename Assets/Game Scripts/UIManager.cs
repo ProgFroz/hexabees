@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour {
     public TimeManager timeManager;
     public WorkingManager workingManager;
     public BeeList beeList;
+    public ResourcesList resourceList;
 
     public Color pauseButtonInactive;
     public Color pauseButtonActive;
@@ -135,8 +136,12 @@ public class UIManager : MonoBehaviour {
                 }
             }
             else {
-                if (cell.Unit == null) {
+                if (cell && cell.Unit == null) {
                     UpdateSelectedGameObject(cell.gameObject);
+                }
+
+                if (cell == null) {
+                    UpdateSelectedGameObject(null);
                 }
             }
 
@@ -248,6 +253,8 @@ public class UIManager : MonoBehaviour {
         beeList.UpdateAmount(amountQueens - amountAdultQueens, CasteAmountType.QueenBreed);
         beeList.UpdateAmount(amountAdultDrones, CasteAmountType.Drone);
         beeList.UpdateAmount(amountDrones - amountAdultDrones, CasteAmountType.DroneBreed);
+        
+        resourceList.UpdateInterface();
     }
 
     private string ConvertSeasonIntToString(int season) {

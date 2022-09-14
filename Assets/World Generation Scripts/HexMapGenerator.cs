@@ -137,10 +137,6 @@ public class HexMapGenerator : MonoBehaviour {
 		new Biome(0, 0), new Biome(1, 1), new Biome(1, 2), new Biome(1, 3)
 	};
 
-	private void Start() {
-		this.GenerateMap(40, 30, true );
-	}
-
 	public void GenerateMap (int x, int z, bool wrapping) {
 		Random.State originalRandomState = Random.state;
 		if (!useFixedSeed) {

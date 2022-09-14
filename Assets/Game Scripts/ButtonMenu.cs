@@ -238,5 +238,7 @@ public enum BeeAction {
     // Builder
     Mix,
     Refine,
-    Evaporate
+    Evaporate,
+    
+    Store
 }

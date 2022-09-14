@@ -44,10 +44,5 @@ public class NewMapMenu : MonoBehaviour {
 		if (generateMaps) {
 			mapGenerator.GenerateMap(x, z, wrapping);
 		}
-		else {
-			hexGrid.CreateMap(x, z, wrapping);
-		}
-		HexMapCamera.ValidatePosition();
-		Close();
 	}
 }

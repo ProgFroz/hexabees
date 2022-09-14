@@ -115,8 +115,14 @@ public class Bee : MonoBehaviour {
         castes.Add(Caste.Queen);
         castes.Add(Caste.Worker);
 
-        Caste = castes[GenerateInt(0, castes.Count)];
-        if (Caste == Caste.Worker) this.job = Job.Builder;
+        List<Job> jobs = new List<Job>();
+        jobs.Add(Job.Builder);
+        jobs.Add(Job.Nurse);
+        jobs.Add(Job.Gatherer);
+
+            // Caste = castes[GenerateInt(0, castes.Count)];
+        Caste = Caste.Worker;
+        if (Caste == Caste.Worker) this.job = jobs[GenerateInt(0, jobs.Count)];
     }
 
     private void GenerateLifespan() {
@@ -201,15 +207,19 @@ public class Bee : MonoBehaviour {
         Inventory.Add(Item.RoyalJelly, 0);
     }
 
+    public bool CheckIfInventoryFull(Item item) {
+        return Inventory[item] == GetMaximumItemsPerItem(item);
+    }
+
     private void UpdatePriorities() {
         priorities.Add(BeeAction.Breed, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Breed) : PriorityValue.Cant));
         priorities.Add(BeeAction.Destroy, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Destroy) : PriorityValue.Cant));
         priorities.Add(BeeAction.Evaporator, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporator) : PriorityValue.Cant));
         priorities.Add(BeeAction.Fertilize, (this.caste == Caste.Drone ? GetRecentPriority(BeeAction.Fertilize) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Gather, (this.job == Job.Collector ? GetRecentPriority(BeeAction.Gather) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Gather, (this.job == Job.Gatherer ? GetRecentPriority(BeeAction.Gather) : PriorityValue.Cant));
         priorities.Add(BeeAction.Lay, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Lay) : PriorityValue.Cant));
         priorities.Add(BeeAction.Mixer, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mixer) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Pollinate, (this.job == Job.Collector ? GetRecentPriority(BeeAction.Pollinate) : PriorityValue.Cant));
+        priorities.Add(BeeAction.Pollinate, (this.job == Job.Gatherer ? GetRecentPriority(BeeAction.Pollinate) : PriorityValue.Cant));
         priorities.Add(BeeAction.Refiner, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refiner) : PriorityValue.Cant));
         priorities.Add(BeeAction.Royal, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Royal) : PriorityValue.Cant));
         priorities.Add(BeeAction.Storage, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Storage) : PriorityValue.Cant));
@@ -456,16 +466,16 @@ public class Bee : MonoBehaviour {
                 }
             case Metamorphosis.Pupa:
                 switch (caste) {
-                    case Caste.Drone: return 2;
-                    case Caste.Worker: return 2;
-                    case Caste.Queen: return 2;
+                    case Caste.Drone: return 1;
+                    case Caste.Worker: return 1;
+                    case Caste.Queen: return 1;
                     default: return 3;
                 }
             case Metamorphosis.Adult:
                 switch (caste) {
-                    case Caste.Drone: return 3;
-                    case Caste.Queen: return 3;
-                    case Caste.Worker: return 3;
+                    case Caste.Drone: return 1;
+                    case Caste.Queen: return 1;
+                    case Caste.Worker: return 1;
                     default: return 3;
                 }
             default: return -1;
@@ -593,7 +603,7 @@ public class Bee : MonoBehaviour {
         switch (Job) {
             case Job.Builder: return "Builder";
             case Job.Nurse: return "Nurse";
-            case Job.Collector: return "Collector";
+            case Job.Gatherer: return "Collector";
             default: return "None";
         }
     }
@@ -651,7 +661,7 @@ public enum Job {
     None,
     Nurse,
     Builder,
-    Collector
+    Gatherer
 }
 public enum Metamorphosis {
     Egg,
@@ -665,7 +675,8 @@ public enum Item {
     Honey,
     Pollen,
     Wax,
-    RoyalJelly
+    RoyalJelly,
+    None
 }
 
 public enum Trait {

@@ -5,6 +5,7 @@ using UnityEngine;
 public class HexFeatureManager : MonoBehaviour {
 
 	private TimeManager _timeManager;
+	private StorageManager _storageManager;
 	public HexFeatureCollection[]
 		urbanCollections, farmCollections, plantCollections;
 
@@ -23,6 +24,7 @@ public class HexFeatureManager : MonoBehaviour {
 
 	private void Start() {
 		_timeManager = GameObject.Find("TimeManager").GetComponent<TimeManager>();
+		_storageManager = GameObject.Find("StorageManager").GetComponent<StorageManager>();
 	}
 
 	public void Clear () {
@@ -118,6 +120,7 @@ public class HexFeatureManager : MonoBehaviour {
 
 		Transform instance = Instantiate(prefab);
 		position.y += instance.localScale.y * 0.5f;
+		position.y -= cell.UrbanLevel > 0 ? 1 : 0;
 		instance.localPosition = HexMetrics.Perturb(position);
 		instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
 		instance.SetParent(tr, false);
@@ -141,6 +144,15 @@ public class HexFeatureManager : MonoBehaviour {
 			tree.fallMaterial = fallMaterial;
 			tree.winterMaterial = winterMaterial;
 		}
+		else if (cell.FarmLevel > 0) {
+			Storage storage = tr.GetComponent<Storage>() == null ? tr.AddComponent<Storage>() : tr.GetComponent<Storage>();
+			storage.Cell = cell;
+			cell.Storage = storage;
+			storage.TimeManager = _timeManager;
+			storage.StorageObjects.Add(instance.gameObject);
+			_storageManager.Storages.Add(storage);
+			storage.StorageManager = _storageManager;
+		}
 		cell.features.Add(instance.gameObject);
 	}
 
@@ -150,6 +162,10 @@ public class HexFeatureManager : MonoBehaviour {
 		}
 		if (cell.UrbanLevel > 0) {
 			return "Tree";
+		}
+
+		if (cell.FarmLevel > 0) {
+			return "Storage";
 		}
 
 		return "Basic";
