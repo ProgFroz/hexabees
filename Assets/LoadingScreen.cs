@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class LoadingScreen : MonoBehaviour {
     public Canvas loadingScreenCanvas;
 
+    [SerializeField] private TimeManager timeManager;
     public NewMapMenu newMapMenu;
     public SaveLoadMenu saveLoadMenu;
 
@@ -15,10 +16,7 @@ public class LoadingScreen : MonoBehaviour {
     // Start is called before the first frame update
     void Start()
     {
-        newGameButton.onClick.AddListener((() => {
-            newMapMenu.CreateMediumMap();
-            Hide();
-        }));
+        newGameButton.onClick.AddListener((CreateNewGame));
         
         loadGameButton.onClick.AddListener(() => {
             saveLoadMenu.Open(false);
@@ -29,6 +27,12 @@ public class LoadingScreen : MonoBehaviour {
     void Update()
     {
         
+    }
+
+    private void CreateNewGame() {
+        newMapMenu.CreateMediumMap();
+        
+        Hide();
     }
 
     public void Hide() {

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BeeList : MonoBehaviour {
+    private UIManager _uiManager;
     public Button beeListButton;
 
     public TextMeshProUGUI workerAmountText;
@@ -14,9 +15,9 @@ public class BeeList : MonoBehaviour {
     public TextMeshProUGUI queenAmountText;
     public TextMeshProUGUI queenBreedAmountText;
     // Start is called before the first frame update
-    void Start()
-    {
-        
+    void Start() {
+        _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
+        beeListButton.onClick.AddListener(() => _uiManager.priorityList.Toggle());
     }
 
     // Update is called once per frame

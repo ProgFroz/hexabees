@@ -234,6 +234,7 @@ public class HexGrid : MonoBehaviour {
 		cell.Index = i;
 		cell.ColumnIndex = x / HexMetrics.chunkSizeX;
 		cell.ShaderData = cellShaderData;
+		cell.hexGrid = this;
 
 		if (wrapping) {
 			cell.Explorable = z > 0 && z < cellCountZ - 1;

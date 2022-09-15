@@ -14,6 +14,8 @@ public class HexCell : MonoBehaviour {
 
 	public UIManager uiManager;
 
+	public HexGrid hexGrid;
+
 	public int Index { get; set; }
 
 	public int ColumnIndex { get; set; }

@@ -4,6 +4,8 @@ using System.IO;
 
 public class HexMapEditor : MonoBehaviour {
 
+	public UIManager uiManager;
+	
 	public HexGrid hexGrid;
 
 	public Material terrainMaterial;
@@ -154,6 +156,7 @@ public class HexMapEditor : MonoBehaviour {
 			var position = cell.transform.position;
 			position = new Vector3(position.x, position.y, position.z);
 			transform1.position = position;
+			// uiManager.RefreshPriorityList();
 		}
 	}
 
@@ -162,6 +165,7 @@ public class HexMapEditor : MonoBehaviour {
 		if (cell && cell.Unit) {
 			hexGrid.RemoveUnit(cell.Unit);
 		}
+		// uiManager.RefreshPriorityList();
 	}
 
 	void HandleInput () {

@@ -235,6 +235,10 @@ public class HexUnit : MonoBehaviour {
 		);
 	}
 
+	public static HexUnit GetHexUnit() {
+		return unitPrefab;
+	}
+
 	void OnEnable () {
 		if (location) {
 			transform.localPosition = location.Position;

@@ -25,7 +25,7 @@ public class ResourcesList : MonoBehaviour
         
     }
 
-    public void UpdateInterface() {
+    public void UpdateInterface(StorageManager storageManager) {
         
     }
 }

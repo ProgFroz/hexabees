@@ -20,8 +20,8 @@ public class Bee : MonoBehaviour {
     public bool hasJob;
 
     public WorkingManager workingManager;
-
     public TimeManager timeManager;
+    public UIManager uiManager;
     
     public HexGameUI hexGameUI;
     [SerializeField]
@@ -91,22 +91,33 @@ public class Bee : MonoBehaviour {
 
     private Dictionary<Trait, float> chancesByTrait = new Dictionary<Trait, float>();
 
+    private List<PriorityValue> _priorityOrder = new List<PriorityValue>();
+
     void Start() {
         _time = 0f;
         GenerateStats();
         GenerateCaste();
         UpdateMetamorphosis(Metamorphosis.Egg);
-        UpdatePriorities();
+        InitializePriorities();
         WorkingManager = hexUnit.Grid.workingManager;
+        
         hexGameUI = hexUnit.Grid.hexGameUI;
         timeManager = WorkingManager.timeManager;
+        uiManager = timeManager.uiManager;
         this._hourBorn = timeManager.GetCurrentHoursSinceBegin();
         InitializeInventory();
         GiveName();
         GenerateTraitChances();
         GenerateTraits();
         GenerateLifespan();
+        CheckInventory();
+        
+
         InvokeRepeating("DrainStats", 0.0f, 1f);
+    }
+
+    private void CheckInventory() {
+        CheckIfInventoryFull();
     }
 
     private void GenerateCaste() {
@@ -210,8 +221,16 @@ public class Bee : MonoBehaviour {
     public bool CheckIfInventoryFull(Item item) {
         return Inventory[item] == GetMaximumItemsPerItem(item);
     }
+    
+    public void CheckIfInventoryFull() {
+        // foreach (KeyValuePair<Item, int> kv in Inventory) {
+        //     if (kv.Value == GetMaximumItemsPerItem(kv.Key)) {
+        //         workingManager.AddStoreTask(this, kv.Key, kv.Value);
+        //     }
+        // }
+    }
 
-    private void UpdatePriorities() {
+    private void InitializePriorities() {
         priorities.Add(BeeAction.Breed, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Breed) : PriorityValue.Cant));
         priorities.Add(BeeAction.Destroy, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Destroy) : PriorityValue.Cant));
         priorities.Add(BeeAction.Evaporator, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporator) : PriorityValue.Cant));
@@ -229,6 +248,8 @@ public class Bee : MonoBehaviour {
         priorities.Add(BeeAction.Mix, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mix) : PriorityValue.Cant));
         priorities.Add(BeeAction.Feed, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Feed) : PriorityValue.Cant));
     }
+
+
 
     public void UpdateMetamorphosis(Metamorphosis metamorphosis) {
         this.metamorphosis = metamorphosis;
@@ -250,8 +271,10 @@ public class Bee : MonoBehaviour {
     private void GenerateStats() {
         MaxFoodLevel = 100;
         MaxWaterLevel = 300;
+        MaxSemenLevel = 100;
         CurrentFoodLevel = MaxFoodLevel;
         CurrentWaterLevel = MaxWaterLevel;
+        CurrentSemenLevel = MaxSemenLevel;
     }
 
     public void AssignJob(JobOrder jobOrder) {
@@ -259,7 +282,7 @@ public class Bee : MonoBehaviour {
     }
 
     public void UpdatePriorities(BeeAction action, PriorityValue value) {
-        
+        Priorities[action] = value;
     }
     
     public void DrainStats() {
@@ -346,7 +369,7 @@ public class Bee : MonoBehaviour {
             seq.append(LeanTween.scale(activeModel, Vector3.zero, 0.5f).setEaseInOutCubic());
         }
        
-        
+        uiManager.RefreshPriorityList();
         return seq;
     }
 
@@ -414,6 +437,7 @@ public class Bee : MonoBehaviour {
                 LeanTween.scale(gameObject, Vector3.one, 1f).setOnComplete(() => {
                     if (metamorphosis == Metamorphosis.Adult) {
                         canWork = true;
+                        uiManager.RefreshPriorityList();
                     }
                 }).setEaseInOutCubic();
             }).setEaseInOutCubic();
@@ -633,7 +657,7 @@ public class Bee : MonoBehaviour {
         trait3 = traitPool[GenerateInt(0, traitPool.Count)];
         traitPool.Remove(trait1);
     }
-    
+
     public static bool GenerateBool(float chance) {
         if (chance > 1) return true;
         return GenerateInt(0, 100) < (chance * 100);

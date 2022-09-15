@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class UIManager : MonoBehaviour {
     public WorkingManager workingManager;
     public BeeList beeList;
     public ResourcesList resourceList;
+    public PriorityList priorityList;
 
     public Color pauseButtonInactive;
     public Color pauseButtonActive;
@@ -157,6 +159,15 @@ public class UIManager : MonoBehaviour {
             
         }
     }
+
+    public void RefreshPriorityList() {
+        HexGrid g1 = workingManager.overworldGrid;
+        HexGrid g2 = workingManager.hiveGrid;
+        List<Bee> bees = g1.GetBees(Metamorphosis.Adult);
+        bees.AddRange(g2.GetBees(Metamorphosis.Adult));
+        List<Bee> final = bees.OrderBy(x => x.DisplayName).ToList();
+        this.priorityList.UpdateList(final);
+    }
     public void UpdateSelectedGameObject(GameObject gameObject) {
         this.selectedGameObject = gameObject;
         if (gameObject) {
@@ -164,7 +175,7 @@ public class UIManager : MonoBehaviour {
             this.UpdateSelectedBee(bee ? bee : null);
         }
     }
-    public void UpdateSelectedBee(Bee bee) {
+    private void UpdateSelectedBee(Bee bee) {
         this.selectedBee = bee;
     }
     private void SwitchWorlds(HexMapType type) {
@@ -254,7 +265,7 @@ public class UIManager : MonoBehaviour {
         beeList.UpdateAmount(amountAdultDrones, CasteAmountType.Drone);
         beeList.UpdateAmount(amountDrones - amountAdultDrones, CasteAmountType.DroneBreed);
         
-        resourceList.UpdateInterface();
+        resourceList.UpdateInterface(workingManager.storageManager);
     }
 
     private string ConvertSeasonIntToString(int season) {

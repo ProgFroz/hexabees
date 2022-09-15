@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using Unity.Jobs.LowLevel.Unsafe;
 using UnityEditorInternal;
+using Random = UnityEngine.Random;
 
 public class WorkingManager : MonoBehaviour {
     public TimeManager timeManager;
@@ -120,12 +121,19 @@ public class WorkingManager : MonoBehaviour {
                 break;
             case BeeAction.Storage: FinishStorage(bee, jobOrder.Cell);
                 break;
+            case BeeAction.Lay: FinishLay(bee, jobOrder.Cell);
+                break;
             default: break;
         }
         
         
         return this.activeJobs.Remove(jobOrder);
         
+    }
+
+    private void FinishLay(Bee bee, HexCell cell) {
+        cell.hexGrid.AddUnit(Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f));
+        bee.CurrentSemenLevel -= 1;
     }
 
     private void FinishStorage(Bee bee, HexCell cell) {
@@ -202,6 +210,8 @@ public class WorkingManager : MonoBehaviour {
         switch (jobOrder.Action) {
             case BeeAction.Pollinate: mostSuitableInventory = FindBeesWithInventory(highestPriorities, Item.Pollen);
                 break;
+            case BeeAction.Lay: mostSuitableInventory = FindQueensWithSemen(highestPriorities);
+                break;
             default:
                 mostSuitableInventory = highestPriorities;
                 break;
@@ -210,6 +220,17 @@ public class WorkingManager : MonoBehaviour {
         if (mostSuitableInventory.Count < 1) return null;
         if (mostSuitableInventory.Count == 1) return mostSuitableInventory[0];
         return FindBeeWithSmallestDistance(mostSuitableInventory);
+    }
+
+    private List<Bee> FindQueensWithSemen(List<Bee> highestPriorities) {
+        List<Bee> queensWithSemen = new List<Bee>();
+        foreach (Bee bee in highestPriorities) {
+            if (bee.Caste == Caste.Queen && bee.CurrentSemenLevel > 0) {
+                queensWithSemen.Add(bee);
+            }
+        }
+
+        return queensWithSemen;
     }
 
     private List<Bee> FindBeesWithInventory(List<Bee> bees, Item item) {
@@ -244,7 +265,7 @@ public class WorkingManager : MonoBehaviour {
         return (value != PriorityValue.Cant && value != PriorityValue.Wont) && bee.GetAssignedJob() == null && bee.CanWork();
     }
 
-    private void AddStoreTask(Bee bee, Item item, int amount) {
+    public void AddStoreTask(Bee bee, Item item, int amount) {
         Storage storage = storageManager.FindClosestStorage(bee, item, amount);
         if (storage) {
             AddJobOrder(bee, BeeAction.Store, storage.Cell);
