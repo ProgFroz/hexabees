@@ -490,16 +490,16 @@ public class Bee : MonoBehaviour {
                 }
             case Metamorphosis.Pupa:
                 switch (caste) {
-                    case Caste.Drone: return 1;
-                    case Caste.Worker: return 1;
-                    case Caste.Queen: return 1;
+                    case Caste.Drone: return 2;
+                    case Caste.Worker: return 2;
+                    case Caste.Queen: return 2;
                     default: return 3;
                 }
             case Metamorphosis.Adult:
                 switch (caste) {
-                    case Caste.Drone: return 1;
-                    case Caste.Queen: return 1;
-                    case Caste.Worker: return 1;
+                    case Caste.Drone: return 3;
+                    case Caste.Queen: return 3;
+                    case Caste.Worker: return 3;
                     default: return 3;
                 }
             default: return -1;

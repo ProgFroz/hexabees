@@ -14,9 +14,12 @@ public class ResourcesList : MonoBehaviour
     public TextMeshProUGUI honeyText;
     public TextMeshProUGUI royalJellyText;
     // Start is called before the first frame update
-    void Start()
-    {
-        
+    void Start() {
+        nectarText.text = 0.ToString();
+        pollenText.text = 0.ToString();
+        waxText.text = 0.ToString();
+        honeyText.text = 0.ToString();
+        royalJellyText.text = 0.ToString();
     }
 
     // Update is called once per frame

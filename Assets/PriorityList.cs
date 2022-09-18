@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,12 @@ public class PriorityList : MonoBehaviour {
     [SerializeField] private Transform content;
     private bool _hidden = true;
     private bool _transitioning = false;
+
+    private void Start() {
+        _hidden = true;
+        transform.localScale = Vector3.zero;
+    }
+
     public void UpdateList(List<Bee> list) {
         foreach (Transform child in content) {
             Destroy(child.gameObject);
@@ -33,7 +40,7 @@ public class PriorityList : MonoBehaviour {
     private void Hide() {
         if (!_transitioning) {
             _transitioning = true;
-            LeanTween.scale(gameObject, new Vector3(0.0001f, 0.0001f, 0.0001f), 0.1f).setEaseInOutCubic().setOnComplete(() => {
+            LeanTween.scale(gameObject, Vector3.zero, 0.1f).setEaseInOutCubic().setOnComplete(() => {
                 _hidden = true;
                 _transitioning = false;
             });

@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour {
     public BeeList beeList;
     public ResourcesList resourceList;
     public PriorityList priorityList;
+    public AlertWindow alertWindow;
 
     public Color pauseButtonInactive;
     public Color pauseButtonActive;
@@ -158,6 +159,10 @@ public class UIManager : MonoBehaviour {
             // }
             
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha9)) {
+            alertWindow.UpdateAlert(AlertType.Food);
+        }
     }
 
     public void RefreshPriorityList() {
@@ -166,6 +171,7 @@ public class UIManager : MonoBehaviour {
         List<Bee> bees = g1.GetBees(Metamorphosis.Adult);
         bees.AddRange(g2.GetBees(Metamorphosis.Adult));
         List<Bee> final = bees.OrderBy(x => x.DisplayName).ToList();
+        Debug.Log(final.Count);
         this.priorityList.UpdateList(final);
     }
     public void UpdateSelectedGameObject(GameObject gameObject) {

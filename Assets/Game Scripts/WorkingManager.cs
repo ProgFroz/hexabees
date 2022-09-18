@@ -180,7 +180,6 @@ public class WorkingManager : MonoBehaviour {
                     possibles.Add(bee);
                 }
             }
-            
         }
         for (int i = 0; i < hiveGrid.Units.Count; i++) {
             HexUnit unit = hiveGrid.Units[i];
