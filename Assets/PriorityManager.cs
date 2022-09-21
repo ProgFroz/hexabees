@@ -37,14 +37,14 @@ public class PriorityManager : MonoBehaviour {
 
     public void UpdatePriorities(Bee bee) {
         this.bee = bee;
-        gatherPriorityButton.UpdateImages(bee.priorities[BeeAction.Gather]);
-        pollinatePriorityButton.UpdateImages(bee.priorities[BeeAction.Pollinate]);
-        fertilizePriorityButton.UpdateImages(bee.priorities[BeeAction.Fertilize]);
-        destroyPriorityButton.UpdateImages(bee.priorities[BeeAction.Destroy]);
-        buildPriorityButton.UpdateImages(bee.priorities[BeeAction.Evaporator]);
-        feedPriorityButton.UpdateImages(bee.priorities[BeeAction.Feed]);
-        coverPriorityButton.UpdateImages(bee.priorities[BeeAction.Cover]);
-        convertPriorityButton.UpdateImages(bee.priorities[BeeAction.Evaporate]);
+        gatherPriorityButton.UpdateImages(bee.Priorities[BeeAction.Gather]);
+        pollinatePriorityButton.UpdateImages(bee.Priorities[BeeAction.Pollinate]);
+        fertilizePriorityButton.UpdateImages(bee.Priorities[BeeAction.Fertilize]);
+        destroyPriorityButton.UpdateImages(bee.Priorities[BeeAction.Destroy]);
+        buildPriorityButton.UpdateImages(bee.Priorities[BeeAction.Evaporator]);
+        feedPriorityButton.UpdateImages(bee.Priorities[BeeAction.Feed]);
+        coverPriorityButton.UpdateImages(bee.Priorities[BeeAction.Cover]);
+        convertPriorityButton.UpdateImages(bee.Priorities[BeeAction.Evaporate]);
     }
 
     private void UpdateBeePriorities(Bee bee, BeeAction beeAction) {

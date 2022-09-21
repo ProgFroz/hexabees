@@ -259,7 +259,7 @@ public class WorkingManager : MonoBehaviour {
     }
 
     private bool CheckIfBeeCan(Bee bee, JobOrder jobOrder) {
-        if (bee.priorities.Count < 1) return false;
+        if (bee.Priorities.Count < 1) return false;
         PriorityValue value = bee.Priorities[jobOrder.Action];
         return (value != PriorityValue.Cant && value != PriorityValue.Wont) && bee.GetAssignedJob() == null && bee.CanWork();
     }

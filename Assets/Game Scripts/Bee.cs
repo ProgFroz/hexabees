@@ -17,8 +17,6 @@ public class Bee : MonoBehaviour {
     [SerializeField]
     private HexUnit hexUnit;
     
-    public bool hasJob;
-
     public WorkingManager workingManager;
     public TimeManager timeManager;
     public UIManager uiManager;
@@ -54,19 +52,16 @@ public class Bee : MonoBehaviour {
 
     private JobOrder _assignedJob = null;
 
-    public Dictionary<BeeAction, PriorityValue> priorities = new Dictionary<BeeAction, PriorityValue>();
+    private Dictionary<BeeAction, PriorityValue> _priorities = new Dictionary<BeeAction, PriorityValue>();
 
     [SerializeField]
     private Dictionary<Item, int> _inventory = new Dictionary<Item, int>();
-
-    public int pollen;
-
+    
     float _time;
     private float _interval = 1f;
-    public bool doWork = false;
-
+    [SerializeField] private bool doWork = false;
     [SerializeField] private bool canWork = false;
-
+    
     private GameObject activeModel;
     [SerializeField] private GameObject workerModel;
     [SerializeField] private GameObject queenModel;
@@ -78,8 +73,8 @@ public class Bee : MonoBehaviour {
     [SerializeField] private int lifespan;
 
     public Dictionary<BeeAction, PriorityValue> Priorities {
-        get => priorities;
-        set => priorities = value;
+        get => _priorities;
+        set => _priorities = value;
     }
 
     [SerializeField] private string displayName;
@@ -185,10 +180,8 @@ public class Bee : MonoBehaviour {
     }
 
     void Update() {
-        pollen = Inventory[Item.Pollen];
         ageHours = timeManager.GetCurrentHoursSinceExistence(_hourBorn);
         ageDays = TimeManager.ConvertHoursToDays(ageHours);
-        this.hasJob = this._assignedJob != null;
         this.doWork = this._assignedJob != null && this._assignedJob.Cell == this.hexUnit.Location;
         
         
@@ -231,22 +224,22 @@ public class Bee : MonoBehaviour {
     }
 
     private void InitializePriorities() {
-        priorities.Add(BeeAction.Breed, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Breed) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Destroy, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Destroy) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Evaporator, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporator) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Fertilize, (this.caste == Caste.Drone ? GetRecentPriority(BeeAction.Fertilize) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Gather, (this.job == Job.Gatherer ? GetRecentPriority(BeeAction.Gather) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Lay, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Lay) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Mixer, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mixer) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Pollinate, (this.job == Job.Gatherer ? GetRecentPriority(BeeAction.Pollinate) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Refiner, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refiner) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Royal, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Royal) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Storage, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Storage) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Cover, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Cover) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Evaporate, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporate) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Refine, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refine) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Mix, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mix) : PriorityValue.Cant));
-        priorities.Add(BeeAction.Feed, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Feed) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Breed, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Breed) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Destroy, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Destroy) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Evaporator, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporator) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Fertilize, (this.caste == Caste.Drone ? GetRecentPriority(BeeAction.Fertilize) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Gather, (this.job == Job.Gatherer ? GetRecentPriority(BeeAction.Gather) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Lay, (this.caste == Caste.Queen ? GetRecentPriority(BeeAction.Lay) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Mixer, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mixer) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Pollinate, (this.job == Job.Gatherer ? GetRecentPriority(BeeAction.Pollinate) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Refiner, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refiner) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Royal, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Royal) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Storage, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Storage) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Cover, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Cover) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Evaporate, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Evaporate) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Refine, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Refine) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Mix, (this.job == Job.Builder ? GetRecentPriority(BeeAction.Mix) : PriorityValue.Cant));
+        _priorities.Add(BeeAction.Feed, (this.job == Job.Nurse ? GetRecentPriority(BeeAction.Feed) : PriorityValue.Cant));
     }
 
 
@@ -257,8 +250,8 @@ public class Bee : MonoBehaviour {
         this.UpdateModel(metamorphosis);
     }
     private PriorityValue GetRecentPriority(BeeAction action) {
-        if (priorities.ContainsKey(action)) {
-            PriorityValue value = priorities[action];
+        if (_priorities.ContainsKey(action)) {
+            PriorityValue value = _priorities[action];
             if (value == PriorityValue.Cant) return PriorityValue.Medium;
             return value;
         }
@@ -673,6 +666,10 @@ public class Bee : MonoBehaviour {
         return (int)GenerateFloat(min, max);
     }
 
+    public bool DoWork {
+        get => doWork;
+        set => doWork = value;
+    }
 }
 
 public enum Caste {
